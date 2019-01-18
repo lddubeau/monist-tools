@@ -1,0 +1,16 @@
+{
+  "name": "@abc/package-b",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@abc/package-a": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "mkdir -p build/dist && cp package.json build/dist && (cd build/dist; ln -sf ../../node_modules)",
+    "ping": "echo pong"
+  },
+  "author": "",
+  "license": "ISC"
+}

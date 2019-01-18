@@ -1,0 +1,36 @@
+{
+  "name": "@abc/package-c",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@abc/package-a": "^1.0.0",
+    "@abc/external": "^1.0.0",
+    "external": "^1.0.0"
+  },
+  "devDependencies": {
+    "@abc/package-b": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@abc/package-b": "^1.0.0",
+    "@abc/external": "^1.0.0",
+    "external": "^1.0.0"
+  },
+  "bundledDependencies": {
+    "@abc/package-b": "^1.0.0",
+    "@abc/external": "^1.0.0",
+    "external": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@abc/package-b": "^1.0.0",
+    "@abc/external": "^1.0.0",
+    "external": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "mkdir -p build/dist && cp package.json build/dist && (cd build/dist; ln -sf ../../node_modules)",
+    "ping": "echo pong"
+  },
+  "author": "",
+  "license": "ISC"
+}

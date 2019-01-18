@@ -1,0 +1,63 @@
+{
+  "name": "monist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A lightweight tool for managing monorepos.",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc -p src/tsconfig.json --outDir build/dist/lib",
+    "clean-package": "sed -e'/private/d' package.json > build/dist/package.json",
+    "bin": "mkdir -p build/dist/bin/ && sed -e's;build/dist/;;' bin/monist > build/dist/bin/monist && chmod +x build/dist/bin/monist",
+    "build": "npm run tsc && npm run clean-package && npm run bin && cp README.md build/dist/",
+    "test": "mocha",
+    "posttest": "tslint --format verbose -p src/tsconfig.json && tslint --format verbose -p test/tsconfig.json"
+  },
+  "bin": {
+    "monist": "./bin/monist"
+  },
+  "author": "Louis-Dominique Dubeau <ldd@lddubeau.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lddubeau/monist.git"
+  },
+  "keywords": [
+    "monorepo",
+    "npm",
+    "build"
+  ],
+  "bugs": {
+    "url": "https://github.com/lddubeau/monist/issues"
+  },
+  "homepage": "https://github.com/lddubeau/monist#readme",
+  "devDependencies": {
+    "@types/argparse": "^1.0.35",
+    "@types/chai": "^4.1.7",
+    "@types/diff": "^3.5.2",
+    "@types/fs-extra": "^5.0.4",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.18",
+    "@types/require-dir": "^1.0.0",
+    "@types/semver": "^5.5.0",
+    "@types/sinon": "^7.0.3",
+    "@types/sinon-chai": "^3.2.2",
+    "chai": "^4.2.0",
+    "diff": "^4.0.1",
+    "eslint": "^5.12.0",
+    "eslint-config-lddubeau-base": "^3.0.1",
+    "expect-rejection": "^1.1.0",
+    "mocha": "^5.2.0",
+    "sinon": "^7.2.2",
+    "sinon-chai": "^3.3.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.12.0",
+    "tslint-config-lddubeau": "^2.1.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "argparse": "^1.0.10",
+    "fs-extra": "^7.0.1",
+    "require-dir": "^1.2.0",
+    "semver": "^5.6.0"
+  }
+}

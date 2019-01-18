@@ -1,0 +1,9 @@
+{
+  "extends": "../tslint.json",
+  "rules": {
+    "missing-jsdoc": [false, "Not in testing."],
+    "no-unused-expression": [false, "Chai causes false positives."],
+    "no-implicit-dependencies": [false, "False positives."],
+    "no-backbone-get-set-outside-model": [false, "False positives."]
+  }
+}

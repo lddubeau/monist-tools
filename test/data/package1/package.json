@@ -1,0 +1,31 @@
+{
+  "name": "package1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "dep1": "^1.0.0",
+    "dep2": "^1.0.0"
+  },
+  "devDependencies": {
+    "dep3": "^1.0.0",
+    "dep4": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "dep5": "^1.0.0",
+    "dep6": "^1.0.0"
+  },
+  "peerDependencies": {
+    "dep7": "^1.0.0",
+    "dep8": "^1.0.0"
+  },
+  "bundledDependencies": {
+    "dep9": "^1.0.0",
+    "dep10": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
