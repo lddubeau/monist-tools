@@ -1,6 +1,6 @@
 {
   "name": "monist",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "A lightweight tool for managing monorepos.",
   "main": "index.js",
