@@ -301,39 +301,6 @@ and ${second}`);
   }
 
   /**
-   * Remove local packages from a lock file (package-lock.json or
-   * npm-shrinkwrap.json). This modifies the file in-place. If the file
-   * contained only local packages, it is deleted.
-   *
-   * @param filePath Path to the lockfile to change. Note that this function
-   * performs no diagnosis on the path passed to it. It will happily open any
-   * file and try to parse it as JSON and modify it. If the path is not a lock
-   * file, results are undefined. Calling this method on a file that does not
-   * exist is a noop.
-   *
-   * @returns A promise that resolves when the job is done.
-   */
-  async removeLocalFromFile(filePath: string): Promise<void> {
-    const obj = JSON.parse((await fs.readFile(filePath)).toString());
-
-    const { dependencies } = obj;
-    if (dependencies) {
-      for (const key in dependencies) {
-        if (await this.isMember(key)) {
-          delete dependencies[key];
-        }
-      }
-
-      if (Object.keys(dependencies).length !== 0) {
-        await fs.writeFile(filePath, JSON.stringify(obj, null, 2));
-      }
-      else {
-        await fs.unlink(filePath);
-      }
-    }
-  }
-
-  /**
    * Verify the dependencies set in the monorepo's ``package.json`` and those in
    * the member repositories.
    */

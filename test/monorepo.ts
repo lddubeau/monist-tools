@@ -147,53 +147,6 @@ test/data/monorepo-duplicate-packages/packages/package-b");
     });
   });
 
-  describe("#removeLocalFromFile", () => {
-    beforeEach(async () => {
-      await fs.copy("test/data/monorepo-good", "test/tmp");
-      monorepo = new Monorepo("test/tmp");
-    });
-
-    afterEach(async () => {
-      await fs.remove("test/tmp");
-    });
-
-    it("deletes the file if it contained only local dependencies", async () => {
-      const filePath = "test/tmp/packages/package-a/package-lock.json";
-      await fs.writeFile(filePath, JSON.stringify({
-        dependencies: {
-          "@abc/package-b": true,
-          "@abc/package-c": true,
-        },
-      }));
-      // tslint:disable-next-line:chai-vague-errors
-      expect(fs.existsSync(filePath)).to.be.true;
-      await monorepo.removeLocalFromFile(filePath);
-      // tslint:disable-next-line:chai-vague-errors
-      expect(fs.existsSync(filePath)).to.be.false;
-    });
-
-    it("cleans the file", async () => {
-      const filePath = "test/tmp/package-lock.json";
-      await fs.writeFile(filePath, JSON.stringify({
-        dependencies: {
-          "@abc/package-b": true,
-          "@abc/package-c": true,
-          "@abc/external": true,
-          fnord: true,
-        },
-      }));
-      await monorepo.removeLocalFromFile(filePath);
-      const data = JSON.parse((await fs.readFile(filePath)).toString());
-      // tslint:disable-next-line:chai-vague-errors
-      expect(data).to.deep.equal({
-        dependencies: {
-          "@abc/external": true,
-          fnord: true,
-        },
-      });
-    });
-  });
-
   describe("#updateLocalVersions()", () => {
     beforeEach(async () => {
       await fs.copy("test/data/monorepo-good", "test/tmp");
