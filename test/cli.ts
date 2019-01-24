@@ -11,6 +11,20 @@ const execFile = promisify(_execFile);
 // tslint:disable-next-line:mocha-no-side-effect-code
 const monist = path.resolve("bin/monist");
 
+// tslint:disable-next-line:mocha-no-side-effect-code
+const CI = process.env.CI === "true";
+
+//
+// What's with this long timeout?? Some of the tests run actual npm commands,
+// which even on a good day are pretty slow. When running in CI, it is even
+// sloooooower. We could use some kind of stubbing system to replace the actual
+// calls to npm with fake ones that resolve instantly. The problem though is
+// that this would not trap mismatches between our code and what npm
+// **actually** requires from us or returns back.
+//
+// tslint:disable-next-line:mocha-no-side-effect-code
+const longTimeout = CI ? 20000 : 10000;
+
 async function expectFailure(monorepo: string, args: string[],
                              expectedStderr: string | RegExp,
                              expectedStdout: string = ""): Promise<void> {
@@ -148,7 +162,7 @@ monist: packages/package-c: linked @abc/package-b
 monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
 `);
-    }).timeout(10000);
+    }).timeout(longTimeout);
 
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("installs when --local-deps=install is used", async () => {
@@ -170,7 +184,7 @@ monist: packages/package-c: installed @abc/package-b
 monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
 `);
-    }).timeout(10000);
+    }).timeout(longTimeout);
   });
 
   describe("run", () => {
@@ -254,7 +268,7 @@ monist: packages/package-c: linked @abc/package-b
 monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
 `);
-    }).timeout(10000);
+    }).timeout(longTimeout);
 
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("installs when --local-deps=install is used", async () => {
@@ -276,7 +290,7 @@ monist: packages/package-c: installed @abc/package-b
 monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
 `);
-    }).timeout(10000);
+    }).timeout(longTimeout);
   });
 
   describe("update-versions", () => {
