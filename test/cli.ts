@@ -151,7 +151,7 @@ monist: packages/package-c: finished npm run build
     }).timeout(10000);
 
     // tslint:disable-next-line:mocha-no-side-effect-code
-    it("links when --local-deps=install is used", async () => {
+    it("installs when --local-deps=install is used", async () => {
       await expectSuccess("test/tmp", ["npm", "--local-deps=install",
                                        "--serial", "run", "build"],
         `\
@@ -257,7 +257,7 @@ monist: packages/package-c: finished npm run build
     }).timeout(10000);
 
     // tslint:disable-next-line:mocha-no-side-effect-code
-    it("links when --local-deps=install is used", async () => {
+    it("installs when --local-deps=install is used", async () => {
       await expectSuccess("test/tmp", ["run", "--local-deps=install",
                                        "--serial", "build"],
         `\
