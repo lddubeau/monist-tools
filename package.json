@@ -64,7 +64,7 @@
     "ts-node": "^8.0.1",
     "tslint": "^5.12.1",
     "tslint-config-lddubeau": "^2.1.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.4"
   },
   "dependencies": {
     "argparse": "^1.0.10",
