@@ -259,7 +259,7 @@ and ${second}`);
       this._localDepTrees = (async () => {
         const nonRoots = new Set<MonorepoMember>();
         const members = await this.getMembers();
-        await this.mapMembers(async (pkg) => {
+        await this.mapMembers(async pkg => {
           for (const dep of await pkg.getLocalDeps()) {
             nonRoots.add(dep);
           }

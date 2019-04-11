@@ -638,7 +638,7 @@ monorepo package.json",
       expect(json).to.have.property("dependencies").deep.equal({
         "@abc/package-a": "2.0.0",
         "@abc/external": "^1.0.0",
-        external: "^1.0.0",
+        "external": "^1.0.0",
       });
 
       expect(json).to.have.property("devDependencies").deep.equal({
@@ -650,7 +650,7 @@ monorepo package.json",
         expect(json).to.have.property(dep).deep.equal({
           "@abc/package-b": "2.0.0",
           "@abc/external": "^1.0.0",
-          external: "^1.0.0",
+          "external": "^1.0.0",
         });
       }
     });

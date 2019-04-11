@@ -33,7 +33,7 @@ export class DepTree<T extends Package> {
    * @param toRemove An array of nodes to remove.
    */
   removeNodes(toRemove: DepTree<T>[]): void {
-    this.dependencies = this.dependencies.filter((dep) => {
+    this.dependencies = this.dependencies.filter(dep => {
       if (toRemove.some(node => dep === node)) {
         return false;
       }
@@ -88,7 +88,7 @@ Set<DepTree<T>> {
 export function removeNodesFromTrees<T extends Package>(trees: DepTree<T>[],
                                                         toRemove: DepTree<T>[]):
 DepTree<T>[] {
-  return trees.filter((tree) => {
+  return trees.filter(tree => {
     if (toRemove.some(node => node === tree)) {
       return false;
     }

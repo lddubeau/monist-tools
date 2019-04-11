@@ -9,7 +9,7 @@ import { error } from "../log";
 
 const commands = requireDir("./commands");
 
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", err => {
   // tslint:disable-next-line:no-console
   error(err.toString());
   process.exit(1);
