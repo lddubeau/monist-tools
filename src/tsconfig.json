@@ -1,7 +1,11 @@
 {
   "extends": "../tsconfig",
   "compilerOptions": {
-    "rootDir": "."
+    "rootDir": ".",
+    "rootDirs": [
+      ".",
+      "../build/generated"
+    ]
   },
   "include": [
     "**/*.ts"

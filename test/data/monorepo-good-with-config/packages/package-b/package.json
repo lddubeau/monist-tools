@@ -1,0 +1,16 @@
+{
+  "name": "@abc/package-b",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@abc/package-a": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "true",
+    "ping": "echo pong"
+  },
+  "author": "",
+  "license": "ISC"
+}

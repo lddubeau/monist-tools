@@ -5,10 +5,11 @@
   "description": "A lightweight tool for managing monorepos.",
   "main": "index.js",
   "scripts": {
+    "generate-ts": "mkdir -p build/generated/cli && json2ts -i src/cli/config-schema.json -o build/generated/cli/config-schema.d.ts",
     "tsc": "tsc -p src/tsconfig.json --outDir build/dist/lib",
     "clean-package": "sed -e'/private/d' package.json > build/dist/package.json",
     "bin": "mkdir -p build/dist/bin/ && sed -e's;build/dist/;;' bin/monist > build/dist/bin/monist && chmod +x build/dist/bin/monist",
-    "build": "npm run tsc && npm run clean-package && npm run bin && cp README.md build/dist/",
+    "build": "npm run generate-ts && npm run tsc && npm run clean-package && npm run bin && cp README.md build/dist/",
     "test": "mocha",
     "posttest": "tslint --format verbose -p src/tsconfig.json && tslint --format verbose -p test/tsconfig.json",
     "build-and-test": "npm run build && npm run test",
@@ -58,6 +59,7 @@
     "eslint-config-lddubeau-base": "^3.0.3",
     "expect-rejection": "^1.1.0",
     "husky": "^2.2.0",
+    "json-schema-to-typescript": "^6.1.3",
     "mocha": "^6.1.4",
     "sinon": "^7.3.2",
     "sinon-chai": "^3.3.0",
@@ -67,6 +69,7 @@
     "typescript": "^3.4.5"
   },
   "dependencies": {
+    "ajv": "^6.10.0",
     "argparse": "^1.0.10",
     "fs-extra": "^7.0.1",
     "require-dir": "^1.2.0",

@@ -5,12 +5,14 @@ import { RawTextHelpFormatter, SubParser } from "argparse";
 
 import { execForAllPackages } from "../common-fns";
 import * as commonOptions from "../common-options";
+import { MonistConfig } from "../config";
 
 // tslint:disable-next-line:no-any
-async function allCommand(args: Record<string, any>): Promise<void> {
+async function allCommand(config: MonistConfig,
+                          args: Record<string, any>): Promise<void> {
   const { cmd, serial, localDeps } = args;
 
-  return execForAllPackages("npm", cmd, {
+  return execForAllPackages(config, "npm", cmd, {
     serial,
     localDeps,
   });

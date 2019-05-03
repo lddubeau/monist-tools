@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "$id": "http://lddubeau.com/schemas/monist/config-schema.json",
+  "title": "Monist configuration",
+  "description": "A schema describing monist's configuration options.",
+  "type": "object",
+  "properties": {
+    "buildDir": {
+      "description": "Inside each local package, the directory which contains the built package.",
+      "type": "string",
+      "default": "build/dist"
+    }
+  },
+  "additionalProperties": false
+}

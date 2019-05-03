@@ -9,6 +9,7 @@ import * as util from "util";
 import { log } from "../log";
 import { Monorepo, MonorepoMember } from "../monorepo";
 import { parseName } from "../util";
+import { MonistConfig } from "./config";
 
 const execFile = util.promisify(childProcess.execFile);
 
@@ -25,7 +26,8 @@ async function accessible(check: string): Promise<boolean> {
   return result;
 }
 
-async function linkDependencies(pkg: MonorepoMember): Promise<void> {
+async function linkDependencies(config: MonistConfig,
+                                pkg: MonorepoMember): Promise<void> {
   const { top } = pkg;
   for (const dep of await pkg.getLocalDeps()) {
     const depName = await dep.getName();
@@ -42,8 +44,8 @@ async function linkDependencies(pkg: MonorepoMember): Promise<void> {
       log(`${top}: linking ${depName}`);
       // eslint-disable-next-line no-await-in-loop
       await execFile("npm", ["link",
-                             path.relative(top, path.join(dep.top, "build",
-                                                          "dist"))], {
+                             path.relative(top, path.join(dep.top,
+                                                          config.buildDir))], {
         cwd: path.join(top),
       });
       log(`${top}: linked ${depName}`);
@@ -51,7 +53,8 @@ async function linkDependencies(pkg: MonorepoMember): Promise<void> {
   }
 }
 
-async function installDependencies(pkg: MonorepoMember): Promise<void> {
+async function installDependencies(config: MonistConfig,
+                                   pkg: MonorepoMember): Promise<void> {
   const { top } = pkg;
   for (const dep of await pkg.getLocalDeps()) {
     const depName = await dep.getName();
@@ -65,8 +68,8 @@ async function installDependencies(pkg: MonorepoMember): Promise<void> {
       // eslint-disable-next-line no-await-in-loop
       await execFile("npm", ["install", "--no-save",
                              path.relative(top,
-                                           path.join(dep.top, "build",
-                                                     "dist"))], {
+                                           path.join(dep.top,
+                                                     config.buildDir))], {
         cwd: path.join(top),
       });
       log(`${top}: installed ${depName}`);
@@ -80,17 +83,18 @@ export interface ExecOptions {
   localDeps: "link" | "install" | null;
 }
 
-async function execForPkg(pkg: MonorepoMember, cmd: string, args: string[],
+async function execForPkg(config: MonistConfig, pkg: MonorepoMember,
+                          cmd: string, args: string[],
                           options: ExecOptions): Promise<void> {
   switch (options.localDeps) {
     case null:
       // This means "do nothing".
       break;
     case "link":
-      await linkDependencies(pkg);
+      await linkDependencies(config, pkg);
       break;
     case "install":
-      await installDependencies(pkg);
+      await installDependencies(config, pkg);
       break;
     default:
       const q: never = options.localDeps;
@@ -108,7 +112,8 @@ async function execForPkg(pkg: MonorepoMember, cmd: string, args: string[],
   log(`${top}: finished ${prettyCmd}`);
 }
 
-export async function execForAllPackages(cmd: string, args: string[],
+export async function execForAllPackages(config: MonistConfig,
+                                         cmd: string, args: string[],
                                          options: ExecOptions): Promise<void> {
   const project = new Monorepo(".");
   const { serial } = options;
@@ -117,12 +122,13 @@ export async function execForAllPackages(cmd: string, args: string[],
   for (const step of plan) {
     if (serial) {
       for (const pkg of step) {
-        await execForPkg(pkg, cmd, args, options);
+        await execForPkg(config, pkg, cmd, args, options);
       }
     }
     else {
       await Promise.all(step
-                        .map(async pkg => execForPkg(pkg, cmd, args, options)));
+                        .map(async pkg => execForPkg(config, pkg, cmd, args,
+                                                     options)));
     }
   }
 }

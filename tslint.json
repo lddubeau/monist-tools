@@ -2,6 +2,7 @@
   "extends": "tslint-config-lddubeau",
   "rules": {
     "non-literal-fs-path": [false, "Hmm... how can we reduce configuration ",
-                            "inputs to literals???"]
+                            "inputs to literals???"],
+    "import-name": [false, "Buggy."]
   }
 }

@@ -688,3 +688,37 @@ monist: Error: verification failed
     });
   });
 });
+
+describe("cli: configuration", () => {
+  describe("takes into account buildDir", () => {
+    before(async () => {
+      await fs.copy("test/data/monorepo-good-with-config", "test/tmp");
+    });
+
+    after(async () => {
+      await fs.remove("test/tmp");
+    });
+
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    it("installs when --local-deps=install is used", async () => {
+      await expectSuccess("test/tmp", ["npm", "--local-deps=install",
+                                       "--serial", "run", "build"],
+        `\
+monist: packages/package-a: started npm run build
+monist: packages/package-a: finished npm run build
+monist: packages/package-d: started npm run build
+monist: packages/package-d: finished npm run build
+monist: packages/package-b: installing @abc/package-a
+monist: packages/package-b: installed @abc/package-a
+monist: packages/package-b: started npm run build
+monist: packages/package-b: finished npm run build
+monist: packages/package-c: installing @abc/package-a
+monist: packages/package-c: installed @abc/package-a
+monist: packages/package-c: installing @abc/package-b
+monist: packages/package-c: installed @abc/package-b
+monist: packages/package-c: started npm run build
+monist: packages/package-c: finished npm run build
+`);
+    }).timeout(longTimeout);
+  });
+});
