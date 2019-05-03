@@ -83,16 +83,17 @@ describe("cli", () => {
     it("fails if no command is given", async () => {
       await expectFailure("./test/tmp", ["npm"],
                           `\
-usage: monist npm [-h] [--serial] [--local-deps {link,install}] cmd [cmd ...]
+usage: monist npm [-h] [--serial] [--local-deps {link,install}]
+                  [--inhibit-subprocess-output]
+                  cmd [cmd ...]
 monist npm: error: too few arguments
 `);
     });
 
     it("fails if the command fails", async () => {
-      await expectFailure("./test/tmp", ["npm", "fnord"],
-                          `monist: Error: Command failed: npm fnord
-
-`,
+      await expectFailure("./test/tmp", ["npm", "fnord",
+                                         "--inhibit-subprocess-output"],
+                          /^monist: Error: Command failed: npm fnord/,
                          `\
 monist: packages/package-a: started npm fnord
 monist: packages/package-d: started npm fnord
@@ -104,7 +105,8 @@ monist: packages/package-d: started npm fnord
       // packages in alphabetical order.  However, finishes are not necessarily
       // in a determinate order. Here package-a and package-d are parallel, and
       // can finish in any order relative to one-another.
-      await expectSuccess("./test/tmp", ["npm", "root"], [
+      await expectSuccess("./test/tmp", ["npm", "root",
+                                         "--inhibit-subprocess-output"], [
         `\
 monist: packages/package-a: started npm root
 monist: packages/package-d: started npm root
@@ -129,7 +131,8 @@ monist: packages/package-c: finished npm root
     });
 
     it("runs the command serially, when --serial is used", async () => {
-      await expectSuccess("./test/tmp", ["npm", "--serial", "root"],
+      await expectSuccess("./test/tmp", ["npm", "--serial",
+                                         "--inhibit-subprocess-output", "root"],
         `\
 monist: packages/package-a: started npm root
 monist: packages/package-a: finished npm root
@@ -145,6 +148,7 @@ monist: packages/package-c: finished npm root
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("links when --local-deps=link is used", async () => {
       await expectSuccess("test/tmp", ["npm", "--local-deps=link", "--serial",
+                                       "--inhibit-subprocess-output",
                                        "run", "build"],
         `\
 monist: packages/package-a: started npm run build
@@ -167,6 +171,7 @@ monist: packages/package-c: finished npm run build
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("installs when --local-deps=install is used", async () => {
       await expectSuccess("test/tmp", ["npm", "--local-deps=install",
+                                       "--inhibit-subprocess-output",
                                        "--serial", "run", "build"],
         `\
 monist: packages/package-a: started npm run build
@@ -191,14 +196,17 @@ monist: packages/package-c: finished npm run build
     it("fails if no command is given", async () => {
       await expectFailure("./test/tmp", ["run"],
                           `\
-usage: monist run [-h] [--serial] [--local-deps {link,install}] cmd [cmd ...]
+usage: monist run [-h] [--serial] [--local-deps {link,install}]
+                  [--inhibit-subprocess-output]
+                  cmd [cmd ...]
 monist run: error: too few arguments
 `);
     });
 
     it("fails if the command fails", async () => {
-      await expectFailure("./test/tmp", ["run", "test"],
-                          /^monist: Error: Command failed: npm run test\nnpm/,
+      await expectFailure("./test/tmp", ["run", "test",
+                                         "--inhibit-subprocess-output"],
+                          /^monist: Error: Command failed: npm run test/,
                          `\
 monist: packages/package-a: started npm run test
 monist: packages/package-d: started npm run test
@@ -210,7 +218,8 @@ monist: packages/package-d: started npm run test
       // packages in alphabetical order.  However, finishes are not necessarily
       // in a determinate order. Here package-a and package-d are parallel, and
       // can finish in any order relative to one-another.
-      await expectSuccess("./test/tmp", ["run", "ping"], [
+      await expectSuccess("./test/tmp", ["run", "ping",
+                                         "--inhibit-subprocess-output"], [
         `\
 monist: packages/package-a: started npm run ping
 monist: packages/package-d: started npm run ping
@@ -235,7 +244,8 @@ monist: packages/package-c: finished npm run ping
     });
 
     it("runs the command serially, when --serial is used", async () => {
-      await expectSuccess("./test/tmp", ["run", "--serial", "ping"],
+      await expectSuccess("./test/tmp", ["run", "--serial",
+                                         "--inhibit-subprocess-output", "ping"],
         `\
 monist: packages/package-a: started npm run ping
 monist: packages/package-a: finished npm run ping
@@ -251,6 +261,7 @@ monist: packages/package-c: finished npm run ping
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("links when --local-deps=link is used", async () => {
       await expectSuccess("test/tmp", ["run", "--local-deps=link", "--serial",
+                                       "--inhibit-subprocess-output",
                                        "build"],
         `\
 monist: packages/package-a: started npm run build
@@ -273,6 +284,7 @@ monist: packages/package-c: finished npm run build
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("installs when --local-deps=install is used", async () => {
       await expectSuccess("test/tmp", ["run", "--local-deps=install",
+                                       "--inhibit-subprocess-output",
                                        "--serial", "build"],
         `\
 monist: packages/package-a: started npm run build
@@ -702,6 +714,7 @@ describe("cli: configuration", () => {
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("installs when --local-deps=install is used", async () => {
       await expectSuccess("test/tmp", ["npm", "--local-deps=install",
+                                       "--inhibit-subprocess-output",
                                        "--serial", "run", "build"],
         `\
 monist: packages/package-a: started npm run build

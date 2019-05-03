@@ -10,16 +10,17 @@ import { MonistConfig } from "../config";
 // tslint:disable-next-line:no-any
 async function allCommand(config: MonistConfig,
                           args: Record<string, any>): Promise<void> {
-  const { cmd, serial, localDeps } = args;
+  const { cmd, serial, localDeps, inhibitSubprocessOutput } = args;
 
   return execForAllPackages(config, "npm", cmd, {
     serial,
     localDeps,
+    inhibitSubprocessOutput,
   });
 }
 
 export function addParser(subparsers: SubParser): void {
-  const { serial, localDeps } = commonOptions;
+  const { serial, localDeps, inhibitSubprocessOutput } = commonOptions;
 
   const commandName = "npm";
   const npm = subparsers.addParser(commandName, {
@@ -56,6 +57,8 @@ prior to running the \`npm\` command.\
 
   npm.addArgument(serial.name, serial.options);
   npm.addArgument(localDeps.name, localDeps.options);
+  npm.addArgument(inhibitSubprocessOutput.name,
+                  inhibitSubprocessOutput.options);
 
   npm.addArgument(["cmd"], {
     nargs: "+",

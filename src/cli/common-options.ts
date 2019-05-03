@@ -21,3 +21,15 @@ The `link` option runs `npm link` to make the dependency available. The \
     dest: "localDeps",
   },
 };
+
+export const inhibitSubprocessOutput = {
+  name: ["--inhibit-subprocess-output"],
+  options: {
+    help: "Inhibit the output to stdout and stderr of the subprocess launched \
+by monist. By default stdout and stderr are inherited by the subprocesses. \
+Thus, their output is seen on the console. With this flag turned on, the \
+output of subprocesses is not visible.",
+    dest: "inhibitSubprocessOutput",
+    action: "storeTrue",
+  },
+};

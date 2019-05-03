@@ -13,6 +13,42 @@ import { MonistConfig } from "./config";
 
 const execFile = util.promisify(childProcess.execFile);
 
+interface RunOptions {
+  cwd: string;
+  inhibitSubprocessOutput: boolean;
+}
+
+async function run(file: string, args: string[],
+                   options: RunOptions): Promise<void> {
+  if (!options.inhibitSubprocessOutput) {
+    return new Promise((resolve, reject) => {
+      const child = childProcess.spawn(file, args, {
+        cwd: options.cwd,
+        stdio: "inherit",
+      });
+
+      child.on("exit", (code, signal) => {
+        if (code) {
+          reject(new Error(`Command failed: ${file} ${args.join(" ")}`));
+          return;
+        }
+
+        if (signal) {
+          reject(new Error(`${file} terminated with signal: ${signal}`));
+          return;
+        }
+
+        resolve();
+      });
+    });
+  }
+  else {
+    await execFile(file, args, {
+      cwd: options.cwd,
+    });
+  }
+}
+
 async function accessible(check: string): Promise<boolean> {
   let result = false;
   try {
@@ -26,8 +62,15 @@ async function accessible(check: string): Promise<boolean> {
   return result;
 }
 
+function makeDepPath(packageTop: string, depTop: string,
+                     buildDir: string): string {
+  return path.relative(packageTop, path.join(depTop, buildDir));
+}
+
 async function linkDependencies(config: MonistConfig,
-                                pkg: MonorepoMember): Promise<void> {
+                                pkg: MonorepoMember,
+                                inhibitSubprocessOutput: boolean):
+Promise<void> {
   const { top } = pkg;
   for (const dep of await pkg.getLocalDeps()) {
     const depName = await dep.getName();
@@ -43,10 +86,9 @@ async function linkDependencies(config: MonistConfig,
       }
       log(`${top}: linking ${depName}`);
       // eslint-disable-next-line no-await-in-loop
-      await execFile("npm", ["link",
-                             path.relative(top, path.join(dep.top,
-                                                          config.buildDir))], {
+      await run("npm", ["link", makeDepPath(top, dep.top, config.buildDir)], {
         cwd: path.join(top),
+        inhibitSubprocessOutput,
       });
       log(`${top}: linked ${depName}`);
     }
@@ -54,7 +96,9 @@ async function linkDependencies(config: MonistConfig,
 }
 
 async function installDependencies(config: MonistConfig,
-                                   pkg: MonorepoMember): Promise<void> {
+                                   pkg: MonorepoMember,
+                                   inhibitSubprocessOutput: boolean):
+Promise<void> {
   const { top } = pkg;
   for (const dep of await pkg.getLocalDeps()) {
     const depName = await dep.getName();
@@ -66,12 +110,11 @@ async function installDependencies(config: MonistConfig,
     else {
       log(`${top}: installing ${depName}`);
       // eslint-disable-next-line no-await-in-loop
-      await execFile("npm", ["install", "--no-save",
-                             path.relative(top,
-                                           path.join(dep.top,
-                                                     config.buildDir))], {
-        cwd: path.join(top),
-      });
+      await run("npm", ["install", "--no-save",
+                        makeDepPath(top, dep.top, config.buildDir)], {
+                          cwd: path.join(top),
+                          inhibitSubprocessOutput,
+                        });
       log(`${top}: installed ${depName}`);
     }
   }
@@ -81,6 +124,8 @@ export interface ExecOptions {
   serial: boolean;
 
   localDeps: "link" | "install" | null;
+
+  inhibitSubprocessOutput: boolean;
 }
 
 async function execForPkg(config: MonistConfig, pkg: MonorepoMember,
@@ -91,10 +136,10 @@ async function execForPkg(config: MonistConfig, pkg: MonorepoMember,
       // This means "do nothing".
       break;
     case "link":
-      await linkDependencies(config, pkg);
+      await linkDependencies(config, pkg, options.inhibitSubprocessOutput);
       break;
     case "install":
-      await installDependencies(config, pkg);
+      await installDependencies(config, pkg, options.inhibitSubprocessOutput);
       break;
     default:
       const q: never = options.localDeps;
@@ -105,8 +150,9 @@ async function execForPkg(config: MonistConfig, pkg: MonorepoMember,
   const prettyCmd = `${cmd} ${args.join(" ")}`;
   log(`${top}: started ${prettyCmd}`);
 
-  await execFile(cmd, args, {
+  await run(cmd, args, {
     cwd: top,
+    inhibitSubprocessOutput: options.inhibitSubprocessOutput,
   });
 
   log(`${top}: finished ${prettyCmd}`);
