@@ -11,8 +11,8 @@ import { loadConfig } from "./config";
 const commands = requireDir("./commands");
 
 process.on("unhandledRejection", err => {
-  // tslint:disable-next-line:no-console
-  error(err.toString());
+  error(err != null ? err.toString() :
+        "unhandledRejection with unknown reason");
   process.exit(1);
 });
 
