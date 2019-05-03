@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/lddubeau/monist/compare/v1.1.0...v1.2.0) (2019-05-03)
+
+
+### Features
+
+* don't inhibit the output of the subprocesses ([3ea0472](https://github.com/lddubeau/monist/commit/3ea0472))
+
+
+
 # [1.1.0](https://github.com/lddubeau/monist/compare/v1.0.0...v1.1.0) (2019-05-03)
 
 
