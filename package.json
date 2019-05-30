@@ -46,7 +46,7 @@
     "@types/chai": "^4.1.7",
     "@types/diff": "^4.0.2",
     "@types/fs-extra": "^7.0.0",
-    "@types/mocha": "^5.2.6",
+    "@types/mocha": "^5.2.7",
     "@types/node": "^11.13.12",
     "@types/require-dir": "^1.0.0",
     "@types/semver": "^6.0.0",
