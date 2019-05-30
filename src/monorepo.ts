@@ -28,7 +28,7 @@ export class MonorepoMember extends Package {
       this._localDeps = (async () => {
         const members = await this.monorepo.getMembersByName();
 
-        const deps = new Set();
+        const deps = new Set<MonorepoMember>();
         for (const dep of Array.from(await this.getDeps())) {
           const member = members.get(dep);
           if (member !== undefined) {
