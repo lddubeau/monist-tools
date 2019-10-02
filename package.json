@@ -58,7 +58,7 @@
     "eslint": "^6.5.1",
     "eslint-config-lddubeau-base": "^4.0.2",
     "expect-rejection": "^1.1.0",
-    "husky": "^3.0.7",
+    "husky": "^3.0.8",
     "json-schema-to-typescript": "^7.1.0",
     "mocha": "^6.2.1",
     "sinon": "^7.5.0",
