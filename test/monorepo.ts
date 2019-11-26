@@ -1,11 +1,13 @@
+import chai from "chai";
 import { expect, use } from "chai";
 import * as diff from "diff";
-import { expectRejection } from "expect-rejection";
+import { expectRejection, use as erUse } from "expect-rejection";
 import * as fs from "fs-extra";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 
 use(sinonChai);
+erUse(chai);
 
 import { Monorepo, MonorepoMember } from "../build/dist/lib/monorepo";
 import { Package } from "../build/dist/lib/package";

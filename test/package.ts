@@ -1,6 +1,9 @@
+import chai from "chai";
 import { expect } from "chai";
-import { expectRejection } from "expect-rejection";
+import { expectRejection, use } from "expect-rejection";
 import * as fs from "fs-extra";
+
+use(chai);
 
 import { Package } from "../build/dist/lib/package";
 

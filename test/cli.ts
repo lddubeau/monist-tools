@@ -1,9 +1,12 @@
+import chai from "chai";
 import { expect } from "chai";
 import { execFile as _execFile } from "child_process";
-import { expectRejection } from "expect-rejection";
+import { expectRejection, use } from "expect-rejection";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { promisify } from "util";
+
+use(chai);
 
 // tslint:disable-next-line:mocha-no-side-effect-code
 const execFile = promisify(_execFile);
