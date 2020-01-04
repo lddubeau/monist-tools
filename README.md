@@ -94,6 +94,13 @@ Monist requires that your monorepo conforms to some constraints:
    directory. This path is configurable in Monist's configuration file under the
    ``buildDir`` option.
 
+ * Your ``buildDir`` directory must contain a ``./build/dist/node_modules``
+   subdirectory which has the same contents as the ``node_modules`` which is in
+   the local package's directory. Assuming you current working directory is the
+   local package's directory, and that ``buildDir`` is the default, then this
+   satisfies the requirement just given: ``(cd build/dist; ln -sf
+   ../../node_modules)"``.
+
 Usage
 =====
 
