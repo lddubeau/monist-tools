@@ -66,11 +66,8 @@ packages; such dependencies should instead be in the top package.json`);
       }
     }
 
-    let monorepoDeps =
-      (await monorepo.getJson()).devDependencies as ReadonlyJsonObject;
-    if (monorepoDeps === undefined) {
-      monorepoDeps = {};
-    }
+    const monorepoDeps =
+      (await monorepo.getJson()).devDependencies as ReadonlyJsonObject ?? {};
 
     const json = await this.getJson();
     const reportedMissing = new Set<string>();
