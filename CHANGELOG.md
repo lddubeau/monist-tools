@@ -1,3 +1,13 @@
+<a name="1.4.0"></a>
+# [1.4.0](https://github.com/lddubeau/monist/compare/v1.3.0...v1.4.0) (2020-01-06)
+
+
+### Features
+
+* add del-script command ([49d5bd4](https://github.com/lddubeau/monist/commit/49d5bd4))
+
+
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/lddubeau/monist/compare/v1.2.0...v1.3.0) (2020-01-06)
 
