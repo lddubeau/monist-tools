@@ -1,3 +1,13 @@
+<a name="1.3.0"></a>
+# [1.3.0](https://github.com/lddubeau/monist/compare/v1.2.0...v1.3.0) (2020-01-06)
+
+
+### Bug Fixes
+
+* relax peerDependencies version number checks ([323dbc2](https://github.com/lddubeau/monist/commit/323dbc2))
+
+
+
 # [1.2.0](https://github.com/lddubeau/monist/compare/v1.1.0...v1.2.0) (2019-05-03)
 
 
