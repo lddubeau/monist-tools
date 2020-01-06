@@ -395,4 +395,20 @@ ${scriptName} in ${conflicts.map(x => x.name).join(", ")}`);
     await this.mapMembers(async pkg => pkg.setScript(scriptName, content,
                                                      options));
   }
+
+  /**
+   * Delete an entry from the ``script`` section of ``package.json`` for all
+   * member packages of this monorepo. Note that this does not modify the
+   * ``package.json`` of the monorepo itself!!
+   *
+   * If the script is already absent from one or all of the ``package.json``
+   * files, this absence is ignored.
+   *
+   * @param scriptName Name of the script to delete.
+   *
+   * @returns A promise that resolves once the data is saved.
+   */
+  async delScript(scriptName: string): Promise<void> {
+    await this.mapMembers(async pkg => pkg.delScript(scriptName));
+  }
 }

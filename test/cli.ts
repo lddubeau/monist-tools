@@ -675,6 +675,96 @@ test/tmp/packages/package-d/package.json
     });
   });
 
+  describe("del-script", () => {
+    it("fails if no argument is given", async () => {
+      await expectFailure("./test/tmp", ["del-script"],
+                          `\
+usage: monist del-script [-h] name
+monist del-script: error: too few arguments
+`);
+    });
+
+    it("deletes the script if the script exists", async () => {
+      await expectSuccess("./test/tmp", ["del-script", "test"], "");
+
+      await expectDifference("test/data/monorepo-good",
+                             "test/tmp", `\
+diff -uraN test/data/monorepo-good/packages/package-a/package.json \
+test/tmp/packages/package-a/package.json
+--- test/data/monorepo-good/packages/package-a/package.json
++++ test/tmp/packages/package-a/package.json
+@@ -4,10 +4,9 @@
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+   "license": "ISC"
+-}
++}
+\\ No newline at end of file
+diff -uraN test/data/monorepo-good/packages/package-b/package.json \
+test/tmp/packages/package-b/package.json
+--- test/data/monorepo-good/packages/package-b/package.json
++++ test/tmp/packages/package-b/package.json
+@@ -7,10 +7,9 @@
+     "@abc/package-a": "^1.0.0"
+   },
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+   "license": "ISC"
+-}
++}
+\\ No newline at end of file
+diff -uraN test/data/monorepo-good/packages/package-c/package.json \
+test/tmp/packages/package-c/package.json
+--- test/data/monorepo-good/packages/package-c/package.json
++++ test/tmp/packages/package-c/package.json
+@@ -27,10 +27,9 @@
+     "external": "^1.0.0"
+   },
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+   "license": "ISC"
+-}
++}
+\\ No newline at end of file
+diff -uraN test/data/monorepo-good/packages/package-d/package.json \
+test/tmp/packages/package-d/package.json
+--- test/data/monorepo-good/packages/package-d/package.json
++++ test/tmp/packages/package-d/package.json
+@@ -4,10 +4,9 @@
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+   "license": "ISC"
+-}
++}
+\\ No newline at end of file
+`);
+    });
+  });
+
   describe("verify-deps", () => {
     it("is successful if there are no errors", async () => {
       await fs.remove("test/tmp");

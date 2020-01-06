@@ -445,6 +445,81 @@ test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
     });
   });
 
+  describe("#delScript()", () => {
+    beforeEach(async () => {
+      await fs.copy("test/data/monorepo-good", "test/tmp");
+      monorepo = new Monorepo("test/tmp");
+    });
+
+    afterEach(async () => {
+      await fs.remove("test/tmp");
+    });
+
+    it("deletes the script", async () => {
+      const oldJson = await monorepo.getJson();
+      await monorepo.delScript("test");
+      const newRepo = new Monorepo("test/tmp");
+      expect(await newRepo.getJson()).to.deep.equal(oldJson);
+
+      const nameToDiff: Record<string, string> = {
+        "@abc/package-a": `\
+@@ -3,9 +3,8 @@
+   "version": "1.0.0",
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+`,
+        "@abc/package-b": `\
+@@ -6,9 +6,8 @@
+   "dependencies": {
+     "@abc/package-a": "^1.0.0"
+   },
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+`,
+        "@abc/package-c": `\
+@@ -26,9 +26,8 @@
+     "@abc/external": "^1.0.0",
+     "external": "^1.0.0"
+   },
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+`,
+        "@abc/package-d": `\
+@@ -3,9 +3,8 @@
+   "version": "1.0.0",
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+-    "test": "echo \\"Error: no test specified\\" && exit 1",
+     "build": "mkdir -p build/dist && cp package.json build/dist && \
+(cd build/dist; ln -sf ../../node_modules)",
+     "ping": "echo pong"
+   },
+   "author": "",
+`,
+      };
+
+      await expectJsonDiff(monorepo, newRepo, nameToDiff);
+    });
+  });
+
   describe("#verifyDeps()", () => {
     it("reports no errors on a good monorepo", async () => {
       expect(await monorepo.verifyDeps()).to.have.members([]);

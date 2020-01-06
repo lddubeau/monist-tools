@@ -112,4 +112,27 @@ describe("Package", () => {
         .property("scripts.foo").equal("baz");
     });
   });
+
+  describe("#delScript()", () => {
+    beforeEach(async () => {
+      await fs.copy("test/data/monorepo-good", "test/tmp");
+    });
+
+    it("deletes the script", async () => {
+      await new Package("test/tmp").setScript("foo", "bar",
+                                              { overwrite: false });
+      expect(await new Package("test/tmp").getJsonCopy()).to.have.nested
+        .property("scripts.foo").equal("bar");
+      await new Package("test/tmp").delScript("foo");
+      expect(await new Package("test/tmp").getJsonCopy()).to.not.have.nested
+        .property("scripts.foo");
+    });
+
+    it("does not rewrite the file if the script is missing", async () => {
+      // We set permissions so that we cannot write to the file anymore.
+      // This way if we try to write to it, we get an exception.
+      await fs.chmod("test/tmp/package.json", 0o444);
+      await new Package("test/tmp").delScript("foo");
+    });
+  });
 });

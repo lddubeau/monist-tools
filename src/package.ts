@@ -145,4 +145,26 @@ ${scriptName}`);
 
     await this.writeJson(json);
   }
+
+  /**
+   * Delete an entry from the ``script`` section of ``package.json``.
+   *
+   * If the script is already absent, no change is done.
+   *
+   * @param scriptName Name of the script to delete.
+   *
+   * @returns A promise that resolves once the data is saved.
+   */
+  async delScript(scriptName: string): Promise<void> {
+    const json = await this.getJsonCopy();
+    const scripts = json.scripts as JsonObject | null | undefined;
+    if (scripts == null || scripts[scriptName] === undefined) {
+      // Nothing to delete: just quit.
+      return;
+    }
+
+    delete scripts[scriptName];
+    await this.writeJson(json);
+  }
+
 }
