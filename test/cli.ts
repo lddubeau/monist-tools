@@ -472,6 +472,8 @@ such dependencies should instead be in the top package.json
 monist: @abc/package-c: unaccounted is missing from monorepo package.json
 monist: @abc/package-c: external version is inconsistent from the one in the \
 monorepo package.json
+monist: @abc/package-c: external-2 version is inconsistent from the one in the \
+monorepo package.json
 monist: Error: verification failed
 `);
       await execFile("diff", ["-uraN", "test/data/monorepo-with-dep-errors",
@@ -695,6 +697,8 @@ monist: @abc/package-c has devDependencies referring to external packages; \
 such dependencies should instead be in the top package.json
 monist: @abc/package-c: unaccounted is missing from monorepo package.json
 monist: @abc/package-c: external version is inconsistent from the one in the \
+monorepo package.json
+monist: @abc/package-c: external-2 version is inconsistent from the one in the \
 monorepo package.json
 monist: Error: verification failed
 `);

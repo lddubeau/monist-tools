@@ -5,6 +5,7 @@
   "main": "index.js",
   "devDependencies": {
     "external": "^1.0.0",
+    "external-2": "^2.0.0",
     "@abc/external": "^1.0.0"
   },
   "dependencies": {

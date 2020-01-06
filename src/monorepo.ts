@@ -7,6 +7,9 @@ import { Package, SetScriptOptions } from "./package";
 import { DepTree, findLeavesInTrees, removeNodesFromTrees } from "./tree";
 import { DEP_NAMES, NON_DEV_DEP_NAMES, ReadonlyJsonObject } from "./util";
 
+const STRICT_DEP_NAMES = ["dependencies", "optionalDependencies",
+                          "bundledDependencies"];
+
 /**
  * Models a package inside a monorepo.
  */
@@ -72,7 +75,7 @@ packages; such dependencies should instead be in the top package.json`);
     const json = await this.getJson();
     const reportedMissing = new Set<string>();
     const reportedInconsistent = new Set<string>();
-    for (const depName of NON_DEV_DEP_NAMES) {
+    for (const depName of STRICT_DEP_NAMES) {
       const deps = json[depName] as ReadonlyJsonObject | undefined;
       if (deps !== undefined) {
         for (const dep in deps) {
@@ -85,6 +88,31 @@ package.json`);
               }
             }
             else if (monorepoDeps[dep] !== deps[dep]) {
+              if (!reportedInconsistent.has(dep)) {
+                errors.push(`${name}: ${dep} version is inconsistent from the \
+one in the monorepo package.json`);
+                reportedInconsistent.add(dep);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    {
+      const deps = json.peerDependencies as ReadonlyJsonObject | undefined;
+      if (deps !== undefined) {
+        for (const dep in deps) {
+          if (!await monorepo.isMember(dep)) {
+            if (!(dep in monorepoDeps)) {
+              if (!reportedMissing.has(dep)) {
+                errors.push(`${name}: ${dep} is missing from monorepo \
+package.json`);
+                reportedMissing.add(dep);
+              }
+            }
+            else if (!semver.intersects(monorepoDeps[dep] as string,
+                                        deps[dep] as string)) {
               if (!reportedInconsistent.has(dep)) {
                 errors.push(`${name}: ${dep} version is inconsistent from the \
 one in the monorepo package.json`);

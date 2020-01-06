@@ -26,7 +26,7 @@
   "peerDependencies": {
     "@abc/package-b": "^1.0.0",
     "@abc/external": "^1.0.0",
-    "external": "^1.0.0"
+    "external-2": "^1.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

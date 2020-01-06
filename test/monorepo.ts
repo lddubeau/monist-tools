@@ -462,6 +462,8 @@ such dependencies should instead be in the top package.json",
         "@abc/package-c: unaccounted is missing from monorepo package.json",
         "@abc/package-c: external version is inconsistent from the one in the \
 monorepo package.json",
+        "@abc/package-c: external-2 version is inconsistent from the one in \
+the monorepo package.json",
       ]);
     });
   });
