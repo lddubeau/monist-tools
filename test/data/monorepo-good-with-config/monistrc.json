@@ -1,3 +1,12 @@
 {
-  "buildDir": "."
+  "buildDir": ".",
+  "cliOptions": {
+    "run": {
+      "ping": {
+        "serial": true,
+        "localDeps": "install",
+        "inhibitSubprocessOutput": true
+      }
+    }
+  }
 }

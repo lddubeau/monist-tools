@@ -3,12 +3,58 @@
   "$id": "http://lddubeau.com/schemas/monist/config-schema.json",
   "title": "Monist configuration",
   "description": "A schema describing monist's configuration options.",
+  "definitions": {
+    "commandOptions": {
+      "description": "A set of command options.",
+      "type": "object",
+      "properties": {
+        "serial": {
+          "description": "Whether the command should run in serial.",
+          "type": "boolean"
+        },
+        "localDeps": {
+          "description": "How to handle local dependencies, if at all.",
+          "enum": ["link", "install", null]
+        },
+        "inhibitSubprocessOutput": {
+          "description": "Whether to inhbit the subprocess output.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
   "type": "object",
   "properties": {
     "buildDir": {
       "description": "Inside each local package, the directory which contains the built package.",
       "type": "string",
       "default": "build/dist"
+    },
+    "cliOptions": {
+      "description": "This object defines default options for the various `monist run` and `monist npm` commands.",
+      "type": "object",
+      "properties": {
+        "run": {
+          "description": "This object defines default options for the various `monist run` commands.",
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/commandOptions"
+            }
+          }
+        },
+        "npm": {
+          "description": "This object defines default options for the various `monist npm` commands.",
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/commandOptions"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "additionalProperties": false

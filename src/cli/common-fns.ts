@@ -9,6 +9,8 @@ import * as util from "util";
 import { log } from "../log";
 import { Monorepo, MonorepoMember } from "../monorepo";
 import { parseName } from "../util";
+import { COMMON_OPTION_DEFAULTS, CommonOptionNames,
+         extractCommonOptions } from "./common-options";
 import { MonistConfig } from "./config";
 
 const execFile = util.promisify(childProcess.execFile);
@@ -118,6 +120,25 @@ Promise<void> {
       log(`${top}: installed ${depName}`);
     }
   }
+}
+
+export function combineCommonOptionsWithConfig<T extends Record<string, any>>(
+  commandName: "run" | "npm",
+  args: T,
+  config: MonistConfig): Pick<T, CommonOptionNames> {
+  const { cmd } = args;
+  if (cmd === undefined || cmd[0] === undefined) {
+    throw new Error("args must have a cmd property set which must contain " +
+                    "at least one element");
+  }
+
+  const configPart = config?.cliOptions?.[commandName];
+
+  const starConfig = configPart?.["*"] ?? {};
+  const cmdConfig = configPart?.[cmd[0]] ?? {};
+
+  return {...COMMON_OPTION_DEFAULTS, ...starConfig, ...cmdConfig,
+          ...extractCommonOptions(args) } ;
 }
 
 export interface ExecOptions {

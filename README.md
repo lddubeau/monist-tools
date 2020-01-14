@@ -134,10 +134,61 @@ Configuration
 Monist looks for a ``monistrc.json`` file in the current working directory of
 the ``monist`` process. This file may contain the following options:
 
-* ``buildDir: string`` (default: ``build/dist``) is the subdirectory under each
-  package in ``packages`` in which the installable version of the package is to
-  be found. For a project where the "installable version" and the source of the
-  package are the same thing you could set ``buildDir`` to ``"."``.
+``buildDir``
+-----------
+
+``buildDir: string`` (default: ``build/dist``) is the subdirectory under each
+package in ``packages`` in which the installable version of the package is to be
+found. For a project where the "installable version" and the source of the
+package are the same thing you could set ``buildDir`` to ``"."``.
+
+``cliOptions``
+--------------
+
+``cliOptions: object`` (default: ``{}``). This is an object under which you may
+record Monist options for various operations you perform with Monist. This helps
+reduce the verbosity of the scripts in ``package.json``. For instance if when
+you run ``monist run build``, you need ``--serial --local-deps=link`` you can
+have a ``cliOptions`` like this:
+
+  ```
+  "cliOptions": {
+    "run": {
+       "build": {
+         "serial": true,
+         "localDeps": "link"
+       }
+    }
+  }
+```
+
+The keys under ``cliOptions`` must be either ``"run"``, for matching ``monist
+run`` or ``"npm"``, for matching ``monist npm``. Then the next level under
+``"run"`` or ``"npm"`` is the command name you pass to these Monist commands.
+So when you do ``monist run build``. You need a ``"build"`` key under ``"run"``.
+
+The special entry "*" under ``"run"`` and ``"nmp"`` cliOptions sets the default
+for all commands under their respective headings.
+
+The order of application of options is:
+
+1. Monist's default values for each option.
+
+2. The entry "*" under cliOptions.
+
+3. The ``cliOptions`` entry that maches the command being issued.
+
+4. The arguments passed on the command line.
+
+At each step, the options of the step being processed overwrite the options of
+already set by previous steps.
+
+Note that the only option that are supported by cliOptions are those common to
+``run`` and ``npm``:
+
+* ``serial``
+* ``localDeps``
+* ``inhibitSubprocessOutput``
 
 Usage Examples
 ==============

@@ -1,29 +1,28 @@
 /**
  * Command all.
  */
-import { RawTextHelpFormatter, SubParser } from "argparse";
+import { Const, RawTextHelpFormatter, SubParser } from "argparse";
 
-import { execForAllPackages } from "../common-fns";
+import { combineCommonOptionsWithConfig,
+         execForAllPackages } from "../common-fns";
 import * as commonOptions from "../common-options";
 import { MonistConfig } from "../config";
 
-// tslint:disable-next-line:no-any
-async function allCommand(config: MonistConfig,
-                          args: Record<string, any>): Promise<void> {
-  const { cmd, serial, localDeps, inhibitSubprocessOutput } = args;
+const commandName = "npm";
 
-  return execForAllPackages(config, "npm", cmd, {
-    serial,
-    localDeps,
-    inhibitSubprocessOutput,
-  });
+// tslint:disable-next-line:no-any
+async function npmCommand(config: MonistConfig,
+                          args: Record<string, any>): Promise<void> {
+  return execForAllPackages(config, "npm", args.cmd,
+                            combineCommonOptionsWithConfig(commandName, args,
+                                                           config));
 }
 
 export function addParser(subparsers: SubParser): void {
   const { serial, localDeps, inhibitSubprocessOutput } = commonOptions;
 
-  const commandName = "npm";
   const npm = subparsers.addParser(commandName, {
+    argumentDefault: Const.SUPPRESS,
     description: `\
 Run an npm command on all packages. For instance, running \`monist \
 ${commandName} test\` would, for all packages:
@@ -53,7 +52,7 @@ prior to running the \`npm\` command.\
     formatterClass: RawTextHelpFormatter,
   });
 
-  npm.setDefaults({ func: allCommand });
+  npm.setDefaults({ func: npmCommand });
 
   npm.addArgument(serial.name, serial.options);
   npm.addArgument(localDeps.name, localDeps.options);

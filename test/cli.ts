@@ -808,11 +808,12 @@ describe("cli: configuration", () => {
       await fs.remove("test/tmp");
     });
 
+    // We need the no-side-effect-code because of the timeout.
     // tslint:disable-next-line:mocha-no-side-effect-code
     it("installs when --local-deps=install is used", async () => {
-      await expectSuccess("test/tmp", ["npm", "--local-deps=install",
+      await expectSuccess("test/tmp", ["run", "--local-deps=install",
                                        "--inhibit-subprocess-output",
-                                       "--serial", "run", "build"],
+                                       "--serial", "build"],
         `\
 monist: packages/package-a: started npm run build
 monist: packages/package-a: finished npm run build
@@ -828,6 +829,38 @@ monist: packages/package-c: installing @abc/package-b
 monist: packages/package-c: installed @abc/package-b
 monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
+`);
+    }).timeout(longTimeout);
+  });
+
+  describe("takes into account cliOptions", () => {
+    before(async () => {
+      await fs.copy("test/data/monorepo-good-with-config", "test/tmp");
+    });
+
+    after(async () => {
+      await fs.remove("test/tmp");
+    });
+
+    // We need the no-side-effect-code because of the timeout.
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    it("the command takes its options from the config file", async () => {
+      await expectSuccess("test/tmp", ["run", "ping"],
+        `\
+monist: packages/package-a: started npm run ping
+monist: packages/package-a: finished npm run ping
+monist: packages/package-d: started npm run ping
+monist: packages/package-d: finished npm run ping
+monist: packages/package-b: installing @abc/package-a
+monist: packages/package-b: installed @abc/package-a
+monist: packages/package-b: started npm run ping
+monist: packages/package-b: finished npm run ping
+monist: packages/package-c: installing @abc/package-a
+monist: packages/package-c: installed @abc/package-a
+monist: packages/package-c: installing @abc/package-b
+monist: packages/package-c: installed @abc/package-b
+monist: packages/package-c: started npm run ping
+monist: packages/package-c: finished npm run ping
 `);
     }).timeout(longTimeout);
   });

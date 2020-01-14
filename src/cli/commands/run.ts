@@ -1,29 +1,28 @@
 /**
  * Command run-all.
  */
-import { RawTextHelpFormatter, SubParser } from "argparse";
+import { Const, RawTextHelpFormatter, SubParser } from "argparse";
 
-import { execForAllPackages } from "../common-fns";
+import { combineCommonOptionsWithConfig,
+         execForAllPackages } from "../common-fns";
 import * as commonOptions from "../common-options";
 import { MonistConfig } from "../config";
 
-// tslint:disable-next-line:no-any
-async function runAllCommand(config: MonistConfig,
-                             args: Record<string, any>): Promise<void> {
-  const { cmd, serial, localDeps, inhibitSubprocessOutput } = args;
+const commandName = "run";
 
-  return execForAllPackages(config, "npm", ["run"].concat(cmd), {
-    serial,
-    localDeps,
-    inhibitSubprocessOutput,
-  });
+// tslint:disable-next-line:no-any
+async function runCommand(config: MonistConfig,
+                          args: Record<string, any>): Promise<void> {
+  return execForAllPackages(config, "npm", [commandName].concat(args.cmd),
+                            combineCommonOptionsWithConfig(commandName, args,
+                                                           config));
 }
 
 export function addParser(subparsers: SubParser): void {
   const { serial, localDeps, inhibitSubprocessOutput } = commonOptions;
 
-  const commandName = "run";
   const run = subparsers.addParser(commandName, {
+    argumentDefault: Const.SUPPRESS,
     description: `\
 Run a script on all packages. For instance, running \`monist ${commandName}
 build\` \ would, for all packages:
@@ -62,5 +61,5 @@ prior to running the \`npm\` command.\,
     nargs: "+",
   });
 
-  run.setDefaults({ func: runAllCommand });
+  run.setDefaults({ func: runCommand });
 }

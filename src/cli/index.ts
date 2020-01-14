@@ -1,7 +1,7 @@
 /**
  * Main module for the CLI.
  */
-import { ArgumentParser } from "argparse";
+import { ArgumentParser, Const } from "argparse";
 // tslint:disable-next-line:no-require-imports
 import requireDir = require("require-dir");
 
@@ -26,7 +26,8 @@ ArgumentParser.prototype.printUsage =
   };
 
 async function main(): Promise<void> {
-  const parser = new ArgumentParser({ addHelp: true });
+  const parser = new ArgumentParser({ addHelp: true,
+                                      argumentDefault: Const.SUPPRESS });
 
   const subparsers = parser.addSubparsers({
     title: "subcommands",
