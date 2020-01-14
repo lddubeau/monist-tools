@@ -82,26 +82,22 @@ test/data/monorepo-duplicate-packages/packages/package-b");
   describe("#getMember() returns", () => {
     it("a member, when the name matches a member", async () => {
       const member = await monorepo.getMember("@abc/package-a");
-      // tslint:disable-next-line:chai-vague-errors
       expect(member).to.not.be.undefined;
       expect(member).to.be.instanceOf(MonorepoMember);
     });
 
     it("undefined, when the name does not match a member", async () => {
       const member = await monorepo.getMember("XXX");
-      // tslint:disable-next-line:chai-vague-errors
       expect(member).to.be.undefined;
     });
   });
 
   describe("#isMember() returns", () => {
     it("true, when the name matches a member", async () => {
-      // tslint:disable-next-line:chai-vague-errors
       expect(await monorepo.isMember("@abc/package-a")).to.be.true;
     });
 
     it("false, when the name does not match a member", async () => {
-      // tslint:disable-next-line:chai-vague-errors
       expect(await monorepo.isMember("XXX")).to.be.false;
     });
   });
@@ -117,7 +113,6 @@ test/data/monorepo-duplicate-packages/packages/package-b");
       }
 
       expect(nameToTree).to.have.keys("@abc/package-c", "@abc/package-d");
-      // tslint:disable-next-line:chai-vague-errors
       expect(nameToTree.get("@abc/package-c"))
         .to.deep.equal(new DepTree(
           // tslint:disable-next-line:no-non-null-assertion
@@ -130,7 +125,6 @@ test/data/monorepo-duplicate-packages/packages/package-b");
                        [new DepTree(nameToPackage.get("@abc/package-a")!,
                                     [])])]));
 
-      // tslint:disable-next-line:chai-vague-errors
       expect(nameToTree.get("@abc/package-d"))
       // tslint:disable-next-line:no-non-null-assertion
         .to.deep.equal(new DepTree(nameToPackage.get("@abc/package-d")!, []));
