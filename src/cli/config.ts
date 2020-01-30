@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 import Ajv from "ajv";
 
-import { MonistConfiguration } from "./config-schema";
+import { MonistConfiguration } from "./config-schema-object";
 import * as schema from "./config-schema.json";
 
 /**
