@@ -17,7 +17,8 @@
     "self:publish": "cd build/dist && npm publish",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
     "postversion": "npm run build-and-test && npm run self:publish",
-    "postpublish": "git push origin --follow-tags"
+    "postpublish": "git push origin --follow-tags",
+    "clean": "rm -rf build"
   },
   "bin": {
     "monist": "./bin/monist"
