@@ -1,3 +1,18 @@
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/lddubeau/monist/compare/v1.5.0...v1.6.0) (2020-01-30)
+
+
+### Bug Fixes
+
+* move additionalProperties to the right level; oops ([7b9ba2e](https://github.com/lddubeau/monist/commit/7b9ba2e))
+
+
+### Features
+
+* add support for packageOptions and ignoring packages ([f0d0132](https://github.com/lddubeau/monist/commit/f0d0132))
+
+
+
 <a name="1.5.0"></a>
 # [1.5.0](https://github.com/lddubeau/monist/compare/v1.4.0...v1.5.0) (2020-01-14)
 
