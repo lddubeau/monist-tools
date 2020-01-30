@@ -1,5 +1,10 @@
 {
   "buildDir": ".",
+  "packageOptions": {
+    "package-d": {
+      "ignore": true
+    }
+  },
   "cliOptions": {
     "run": {
       "ping": {

@@ -8,9 +8,9 @@ import { Monorepo } from "../../monorepo";
 import { MonistConfig } from "../config";
 
 // tslint:disable-next-line:no-any
-async function updateVersionsCommand(_config: MonistConfig,
+async function updateVersionsCommand(config: MonistConfig,
                                      args: Record<string, any>): Promise<void> {
-  const monorepo = new Monorepo(".");
+  const monorepo = new Monorepo(".", config);
 
   const errors = await monorepo.verifyDeps();
   if (errors.length !== 0) {

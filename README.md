@@ -142,6 +142,33 @@ package in ``packages`` in which the installable version of the package is to be
 found. For a project where the "installable version" and the source of the
 package are the same thing you could set ``buildDir`` to ``"."``.
 
+``packageOptions``
+------------------
+
+``packageOptions: object`` (default: ``{}``). This is an object under which you
+may record options that determine how Monist handles the packages under the
+``packages`` subdirectory. The keys of this object correspond to the **directory
+names** under ``packages``. Using directory names allows us to perform some
+operations *early*, prior to trying to read any ``package.json`` file. The
+supported options are:
+
+* ``ignore: boolean`` (default: ``false``) Whether to ignore this package.
+
+Example:
+
+```
+  "packageOptions": {
+    "garbage": {
+      "ignore": true
+    }
+  }
+
+```
+
+This would tell Monist to ignore the content of ``packages/garbage``. Monist
+would not even try to read a ``package.json`` from this directory so this file
+may not even exist.
+
 ``cliOptions``
 --------------
 

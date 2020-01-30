@@ -7,11 +7,11 @@ import { Monorepo } from "../../monorepo";
 import { MonistConfig } from "../config";
 
 // tslint:disable-next-line:no-any
-async function delScript(_config: MonistConfig,
+async function delScript(config: MonistConfig,
                          args: Record<string, any>): Promise<void> {
   const { name } = args;
 
-  return new Monorepo(".").delScript(name);
+  return new Monorepo(".", config).delScript(name);
 }
 
 export function addParser(subparsers: SubParser): void {

@@ -36,10 +36,18 @@ Promise<void> {
 describe("Monorepo", () => {
   let monorepo: Monorepo;
   let duplicate: Monorepo;
+  let ignore: Monorepo;
 
   before(() => {
-    monorepo = new Monorepo("./test/data/monorepo-good");
-    duplicate = new Monorepo("./test/data/monorepo-duplicate-packages");
+    monorepo = new Monorepo("./test/data/monorepo-good", {});
+    duplicate = new Monorepo("./test/data/monorepo-duplicate-packages", {});
+    ignore = new Monorepo("./test/data/monorepo-good", {
+      packageOptions: {
+        "package-d": {
+          ignore: true,
+        },
+      },
+    });
   });
 
   describe("#getMembers()", () => {
@@ -56,6 +64,12 @@ test/data/monorepo-duplicate-packages/packages/package-b");
       expect(await Promise.all(packages.map(async x => x.getName()))).to
         .members(["@abc/package-a", "@abc/package-b", "@abc/package-c",
                   "@abc/package-d"]);
+    });
+
+    it("excludes ignored packages", async () => {
+      const packages = await ignore.getMembers();
+      expect(await Promise.all(packages.map(async x => x.getName()))).to
+        .members(["@abc/package-a", "@abc/package-b", "@abc/package-c"]);
     });
   });
 
@@ -77,6 +91,16 @@ test/data/monorepo-duplicate-packages/packages/package-b");
       expect(member).to.be.instanceOf(MonorepoMember);
       expect(await member.getName()).to.equal("@abc/package-a");
     });
+
+    it("excludes ignored packages", async () => {
+      const members = await ignore.getMembersByName();
+      expect(members).to.have.keys("@abc/package-a", "@abc/package-b",
+                                   "@abc/package-c");
+      // tslint:disable-next-line:no-non-null-assertion
+      const member = members.get("@abc/package-a")!;
+      expect(member).to.be.instanceOf(MonorepoMember);
+      expect(await member.getName()).to.equal("@abc/package-a");
+    });
   });
 
   describe("#getMember() returns", () => {
@@ -87,8 +111,11 @@ test/data/monorepo-duplicate-packages/packages/package-b");
     });
 
     it("undefined, when the name does not match a member", async () => {
-      const member = await monorepo.getMember("XXX");
-      expect(member).to.be.undefined;
+      expect(await monorepo.getMember("XXX")).to.be.undefined;
+    });
+
+    it("undefined, when the package is ignored", async () => {
+      expect(await ignore.getMember("@abc/package-d")).to.be.undefined;
     });
   });
 
@@ -99,6 +126,10 @@ test/data/monorepo-duplicate-packages/packages/package-b");
 
     it("false, when the name does not match a member", async () => {
       expect(await monorepo.isMember("XXX")).to.be.false;
+    });
+
+    it("false, when the package is ignored", async () => {
+      expect(await ignore.isMember("@abc/package-d")).to.be.false;
     });
   });
 
@@ -129,6 +160,29 @@ test/data/monorepo-duplicate-packages/packages/package-b");
       // tslint:disable-next-line:no-non-null-assertion
         .to.deep.equal(new DepTree(nameToPackage.get("@abc/package-d")!, []));
     });
+
+    it("excludes ignored packages", async () => {
+      const nameToPackage = await ignore.getMembersByName();
+
+      const nameToTree = new Map();
+      const deps = await ignore.getLocalDepTrees();
+      for (const root of deps) {
+        nameToTree.set(await root.pkg.getName(), root);
+      }
+
+      expect(nameToTree).to.have.keys("@abc/package-c");
+      expect(nameToTree.get("@abc/package-c"))
+        .to.deep.equal(new DepTree(
+          // tslint:disable-next-line:no-non-null-assertion
+          nameToPackage.get("@abc/package-c")!,
+          // tslint:disable-next-line:no-non-null-assertion
+          [new DepTree(nameToPackage.get("@abc/package-a")!, []),
+           // tslint:disable-next-line:no-non-null-assertion
+           new DepTree(nameToPackage.get("@abc/package-b")!,
+                       // tslint:disable-next-line:no-non-null-assertion
+                       [new DepTree(nameToPackage.get("@abc/package-a")!,
+                                    [])])]));
+    });
   });
 
   describe("#getPlan", () => {
@@ -141,12 +195,22 @@ test/data/monorepo-duplicate-packages/packages/package-b");
         [packages.get("@abc/package-c")],
       ]);
     });
+
+    it("excludes ignored packages", async () => {
+      const packages = await ignore.getMembersByName();
+      const plan = await ignore.getPlan();
+      expect(plan).to.deep.members([
+        [packages.get("@abc/package-a")],
+        [packages.get("@abc/package-b")],
+        [packages.get("@abc/package-c")],
+      ]);
+    });
   });
 
   describe("#updateLocalVersions()", () => {
     beforeEach(async () => {
       await fs.copy("test/data/monorepo-good", "test/tmp");
-      monorepo = new Monorepo("test/tmp");
+      monorepo = new Monorepo("test/tmp", {});
     });
 
     afterEach(async () => {
@@ -159,7 +223,7 @@ test/data/monorepo-duplicate-packages/packages/package-b");
       await expectRejection(monorepo.updateLocalVersions("fnord"),
                             Error, "fnord is not a valid semver version");
 
-      const newRepo = new Monorepo("test/tmp");
+      const newRepo = new Monorepo("test/tmp", {});
       expect(await newRepo.getJson()).to.deep.equal(oldJson);
       expect(await newRepo.mapMembers(async x => x.getJson()))
         .to.deep.equal(oldPackageJsons);
@@ -170,7 +234,7 @@ test/data/monorepo-duplicate-packages/packages/package-b");
       const oldJson = await monorepo.getJson();
       await monorepo.updateLocalVersions("2.0.0");
 
-      const newRepo = new Monorepo("test/tmp");
+      const newRepo = new Monorepo("test/tmp", {});
       const newJson = await newRepo.getJson();
 
       expect(cleanDiff(oldJson, newJson)).to.equal(`\
@@ -272,7 +336,7 @@ test/data/monorepo-duplicate-packages/packages/package-b");
   describe("#setScript()", () => {
     beforeEach(async () => {
       await fs.copy("test/data/monorepo-good", "test/tmp");
-      monorepo = new Monorepo("test/tmp");
+      monorepo = new Monorepo("test/tmp", {});
     });
 
     afterEach(async () => {
@@ -288,7 +352,7 @@ test/data/monorepo-duplicate-packages/packages/package-b");
                             "@abc/monorepo-good: trying to overwrite script \
 test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
 
-      const newRepo = new Monorepo("test/tmp");
+      const newRepo = new Monorepo("test/tmp", {});
       expect(await newRepo.getJson()).to.deep.equal(oldJson);
       expect(await newRepo.mapMembers(async x => x.getJson()))
         .to.deep.equal(oldPackageJsons);
@@ -297,7 +361,7 @@ test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
     it("succeeds if the script exists, and overwrite is true", async () => {
       const oldJson = await monorepo.getJson();
       await monorepo.setScript("test", "something", { overwrite: true });
-      const newRepo = new Monorepo("test/tmp");
+      const newRepo = new Monorepo("test/tmp", {});
       expect(await newRepo.getJson()).to.deep.equal(oldJson);
 
       const nameToDiff: Record<string, string> = {
@@ -365,7 +429,7 @@ test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
     it("succeeds if the script does not exist", async () => {
       const oldJson = await monorepo.getJson();
       await monorepo.setScript("new", "something", { overwrite: false });
-      const newRepo = new Monorepo("test/tmp");
+      const newRepo = new Monorepo("test/tmp", {});
       expect(await newRepo.getJson()).to.deep.equal(oldJson);
 
       const nameToDiff: Record<string, string> = {
@@ -442,7 +506,7 @@ test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
   describe("#delScript()", () => {
     beforeEach(async () => {
       await fs.copy("test/data/monorepo-good", "test/tmp");
-      monorepo = new Monorepo("test/tmp");
+      monorepo = new Monorepo("test/tmp", {});
     });
 
     afterEach(async () => {
@@ -452,7 +516,7 @@ test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
     it("deletes the script", async () => {
       const oldJson = await monorepo.getJson();
       await monorepo.delScript("test");
-      const newRepo = new Monorepo("test/tmp");
+      const newRepo = new Monorepo("test/tmp", {});
       expect(await newRepo.getJson()).to.deep.equal(oldJson);
 
       const nameToDiff: Record<string, string> = {
@@ -520,7 +584,7 @@ test in @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d");
     });
 
     it("reports errors on a bad monorepo", async () => {
-      const bad = new Monorepo("test/data/monorepo-with-dep-errors");
+      const bad = new Monorepo("test/data/monorepo-with-dep-errors", {});
       expect(await bad.verifyDeps()).to.have.members([
         "dependencies are not allowed in the monorepo package.json",
         "optionalDependencies are not allowed in the monorepo package.json",
@@ -543,7 +607,7 @@ describe("MonorepoMember", () => {
   let nameToPackage: Map<string, MonorepoMember>;
 
   before(async () => {
-    monorepo = new Monorepo("./test/data/monorepo-good");
+    monorepo = new Monorepo("./test/data/monorepo-good", {});
     nameToPackage = await monorepo.getMembersByName();
   });
 
@@ -678,7 +742,7 @@ monorepo package.json",
   describe("#updateLocalVersions()", () => {
     beforeEach(async () => {
       await fs.copy("test/data/monorepo-good", "test/tmp");
-      monorepo = new Monorepo("test/tmp");
+      monorepo = new Monorepo("test/tmp", {});
     });
 
     afterEach(async () => {

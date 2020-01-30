@@ -182,7 +182,7 @@ async function execForPkg(config: MonistConfig, pkg: MonorepoMember,
 export async function execForAllPackages(config: MonistConfig,
                                          cmd: string, args: string[],
                                          options: ExecOptions): Promise<void> {
-  const project = new Monorepo(".");
+  const project = new Monorepo(".", config);
   const { serial } = options;
   const plan = await project.getPlan();
 

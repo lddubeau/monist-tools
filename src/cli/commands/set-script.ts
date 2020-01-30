@@ -7,11 +7,11 @@ import { Monorepo } from "../../monorepo";
 import { MonistConfig } from "../config";
 
 // tslint:disable-next-line:no-any
-async function setScript(_config: MonistConfig,
+async function setScript(config: MonistConfig,
                          args: Record<string, any>): Promise<void> {
   const { name, content, overwrite } = args;
 
-  return new Monorepo(".").setScript(name, content, {
+  return new Monorepo(".", config).setScript(name, content, {
     overwrite,
   });
 }

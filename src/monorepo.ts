@@ -2,8 +2,8 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as semver from "semver";
 
+import { MonistConfig } from "./cli/config";
 import { Package, SetScriptOptions } from "./package";
-
 import { DepTree, findLeavesInTrees, removeNodesFromTrees } from "./tree";
 import { DEP_NAMES, NON_DEV_DEP_NAMES, ReadonlyJsonObject } from "./util";
 
@@ -162,8 +162,16 @@ export class Monorepo extends Package {
   private _localDepTrees: Promise<DepTree<MonorepoMember>[]> | undefined;
 
   /**
+   * @param top The top level directory of the monorepo.
+   */
+  constructor(top: string, private readonly config: MonistConfig) {
+    super(top);
+  }
+
+  /**
    * @returns An array of the members of this monorepo. The array is in
-   * lexicographical order of package name.
+   * lexicographical order of package name. This function omits ignored
+   * packages.
    */
   async getMembers(): Promise<MonorepoMember[]> {
     if (this._members === undefined) {
@@ -187,7 +195,8 @@ export class Monorepo extends Package {
    *
    * @param callback The function to run.
    *
-   * @returns An array of all values produced by the callback.
+   * @returns An array of all values produced by the callback. This function
+   * omits ignored packages.
    */
   async mapMembers<T>(callback: (member: MonorepoMember) => Promise<T>):
   Promise<T[]> {
@@ -195,16 +204,20 @@ export class Monorepo extends Package {
   }
 
   /**
-   * @returns A map from member name to member.
+   * @returns A map from member name to member. This function omits ignored
+   * packages.
    */
   async getMembersByName(): Promise<Map<string, MonorepoMember>> {
     if (this._membersByName === undefined) {
+      const { config } = this;
       this._membersByName =
         (async () => {
           const map = new Map<string, MonorepoMember>();
 
           await Promise.all(
             (await fs.readdir(path.join(this.top, "packages")))
+            // Remove all the packages that are ignored.
+              .filter(basename => !config.packageOptions?.[basename]?.ignore)
               .map(async basename => {
                 const member = new MonorepoMember(path.join(this.top,
                                                             "packages",
@@ -234,7 +247,8 @@ and ${second}`);
    *
    * @param name The name of the member to fetch.
    *
-   * @returns The member, or ``undefined`` if there is no such member.
+   * @returns The member, or ``undefined`` if there is no such member. An
+   * ignored package is not considered to be a "member".
    */
   async getMember(name: string): Promise<MonorepoMember | undefined> {
     return (await this.getMembersByName()).get(name);
@@ -245,7 +259,8 @@ and ${second}`);
    *
    * @param name The name of the member to check.
    *
-   * @returns ``true`` if there is a member with that name, ``false`` otherwise.
+   * @returns ``true`` if there is a member with that name, ``false``
+   * otherwise. An ignored package is not considered to be a "member".
    */
   async isMember(name: string): Promise<boolean> {
     return (await this.getMember(name)) !== undefined;

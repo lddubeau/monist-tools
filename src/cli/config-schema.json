@@ -22,6 +22,17 @@
         }
       },
       "additionalProperties": false
+    },
+    "packageOptions": {
+      "description": "A set of package options.",
+      "type": "object",
+      "properties": {
+        "ignore": {
+          "description": "This package should be ignored. Ignoring a package makes it non-existent as far as monist is concerned.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "type": "object",
@@ -30,6 +41,15 @@
       "description": "Inside each local package, the directory which contains the built package.",
       "type": "string",
       "default": "build/dist"
+    },
+    "packageOptions": {
+      "description": "Per-package options. The keys of this object must be names of local packages in the monorepo. By 'names' here we mean the directory names under the 'packages' subdirectory. (Not the names in the package.json files.)",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/packageOptions"
+        }
+      }
     },
     "cliOptions": {
       "description": "This object defines default options for the various `monist run` and `monist npm` commands.",

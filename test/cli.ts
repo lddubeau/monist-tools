@@ -817,8 +817,6 @@ describe("cli: configuration", () => {
         `\
 monist: packages/package-a: started npm run build
 monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
 monist: packages/package-b: installing @abc/package-a
 monist: packages/package-b: installed @abc/package-a
 monist: packages/package-b: started npm run build
@@ -849,8 +847,6 @@ monist: packages/package-c: finished npm run build
         `\
 monist: packages/package-a: started npm run ping
 monist: packages/package-a: finished npm run ping
-monist: packages/package-d: started npm run ping
-monist: packages/package-d: finished npm run ping
 monist: packages/package-b: installing @abc/package-a
 monist: packages/package-b: installed @abc/package-a
 monist: packages/package-b: started npm run ping
