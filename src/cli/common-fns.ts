@@ -85,7 +85,7 @@ Promise<void> {
       log(`${top}: linking ${depName}`);
       // eslint-disable-next-line no-await-in-loop
       await run("npm", ["link", makeDepPath(top, dep.top, config.buildDir)], {
-        cwd: path.join(top),
+        cwd: top,
         inhibitSubprocessOutput,
       });
       log(`${top}: linked ${depName}`);
@@ -110,7 +110,7 @@ Promise<void> {
       // eslint-disable-next-line no-await-in-loop
       await run("npm", ["install", "--no-save",
                         makeDepPath(top, dep.top, config.buildDir)], {
-                          cwd: path.join(top),
+                          cwd: top,
                           inhibitSubprocessOutput,
                         });
       log(`${top}: installed ${depName}`);
