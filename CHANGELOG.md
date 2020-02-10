@@ -1,3 +1,18 @@
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/lddubeau/monist/compare/v1.6.0...v1.7.0) (2020-02-10)
+
+
+### Bug Fixes
+
+* don't create build/dist ([cc2e9ac](https://github.com/lddubeau/monist/commit/cc2e9ac))
+
+
+### Features
+
+* add --local-deps=symlink ([cbf97e9](https://github.com/lddubeau/monist/commit/cbf97e9))
+
+
+
 <a name="1.6.0"></a>
 # [1.6.0](https://github.com/lddubeau/monist/compare/v1.5.0...v1.6.0) (2020-01-30)
 
