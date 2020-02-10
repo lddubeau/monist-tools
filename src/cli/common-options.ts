@@ -16,8 +16,8 @@ parallel. This flag forces all execution to be serial.",
   options: {
     help: "Process the local dependencies before executing the command. \
 The `link` option runs `npm link` to make the dependency available. The \
-`install` option uses `npm install`.",
-    choices: ["link", "install"],
+`install` option uses `npm install`. The `symlink` option uses `ln -s`.",
+    choices: ["link", "install", "symlink"],
     dest: "localDeps" as const,
   },
 },

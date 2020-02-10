@@ -14,7 +14,7 @@
         },
         "localDeps": {
           "description": "How to handle local dependencies, if at all.",
-          "enum": ["link", "install", null]
+          "enum": ["link", "install", "symlink", null]
         },
         "inhibitSubprocessOutput": {
           "description": "Whether to inhbit the subprocess output.",

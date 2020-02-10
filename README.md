@@ -261,6 +261,75 @@ following checks:
   entry there must have the same version number as the entry in the local
   ``package.json``.
 
+Local Dependencies
+==================
+
+When you run ``monist run`` or ``monist npm``, monist analyses the dependencies
+of each package and isolates those dependencies that are to other local
+dependencies. It then organizes the order in which it processes the so that when
+a package is processed, its dependencies have been processed *prior* to it, and
+are "installed" prior to processing the package. This is important in particular
+when running a build: if package A depends on package B, you normally want
+package B to have been built prior to package A.
+
+We wrote "installed" in quotes above because you do not always want an actual
+installation. There are multiple ways to simulate an installation. We describe
+here what monist provides, from most preferred to least.
+
+``--local-deps=symlink``
+========================
+
+Using this method, suppose package B depends on package P1. When monist installs
+the local dependencies for package B, it will create a file
+``packages/B/node_modules/@local/P1`` which is a symbolic link to
+``packages/P1/build/dist``. (We assume the default ``buildDir`` setting.)
+
+In our experience, this is the method least likely to lead to surprises.
+
+A side-benefit of using this method is that we entirely bypass ``npm`` for the
+"installation". Why does it matter? ``npm`` is extremely temperamental when it
+comes to speed of execution. ``npm install`` can take 2 seconds in one run and
+10 seconds the next. We're talking about installing twice in the same
+package. The second run should benefit from caching... but no.
+
+``--local-deps=install``
+========================
+
+Using this method, suppose package B depends on package P1. When monist installs
+the local dependencies for package B, it will set its current working directory
+to ``packages/B`` and issue ``npm install ../P1/build/dist``.
+
+This method of doing things has some negative consequences:
+
+1. In a chain of local dependencies, all packages except the one at the end of
+   the chain will have their ``packages/*/node_modules`` populated with modules
+   that duplicates those in the top-level ``node_modules``. (This is assuming
+   you are following the instruction about using ``(cd build/dist; ln -sf
+   ../../node_modules)"`` given above in this README.).)
+
+2. You can end up breaking your build process. This has happened to me
+   (@lddubeau) on TypeScript projects. The modifications that ``npm install``
+   does to the file tree ended up preventing ``tsc`` from finding typings.
+
+The gory details are [on this issue](https://github.com/lddubeau/monist);
+
+``--local-deps=link``
+=====================
+
+This is the least favored method, and it is now formally deprecated. Monist 2
+will remove this option.
+
+You should use ``--local-deps=link`` **if and only if** you will not run
+multiple builds of different versions of the same monorepo in a way that makes
+``npm`` use the same directory for global packages. The problem with ``npm
+link`` is that effectively installs the linked package globally before creating
+a local link. So suppose you have a single machine in which you run a build B1
+that checked out the version tag ``v1.5.3`` of your monorepo and a build B2 that
+checked out the ``dev`` branch of your monorepo. And suppose two local package,
+P1 and P2, with P2 dependent on P1. If both builds share the same set of global
+packages, then when P2 is built, it will link to the version of P1 that was last
+built, which is indeterminate because the builds are parallel.
+
 Parallelism
 ===========
 
@@ -300,20 +369,6 @@ Not all commands can be issued in parallel. Examples:
 **Monist cannot by itself detect commands that should not be run in parallel.**
 If you run into issues like those above, you may need to issue use the
 ``--serial`` option.
-
-``--local-deps=link``
-=====================
-
-You should use ``--local-deps=link`` **if and only if** you will not run
-multiple builds of different versions of the same monorepo in a way that makes
-``npm`` use the same directory for global packages. The problem with ``npm
-link`` is that effectively installs the linked package globally before creating
-a local link. So suppose you have a single machine in which you run a build B1
-that checked out the version tag ``v1.5.3`` of your monorepo and a build B2 that
-checked out the ``dev`` branch of your monorepo. And suppose two local package,
-P1 and P2, with P2 dependent on P1. If both builds share the same set of global
-packages, then when P2 is built, it will link to the version of P1 that was last
-built, which is indeterminate because the builds are parallel.
 
 <!--  LocalWords:  monorepos npm json mylib ajax monorepo cd ln cmd deps nprmc
  -->

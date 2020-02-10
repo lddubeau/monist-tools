@@ -87,7 +87,7 @@ describe("cli", () => {
     it("fails if no command is given", async () => {
       await expectFailure("./test/tmp", ["npm"],
                           `\
-usage: monist npm [-h] [--serial] [--local-deps {link,install}]
+usage: monist npm [-h] [--serial] [--local-deps {link,install,symlink}]
                   [--inhibit-subprocess-output]
                   cmd [cmd ...]
 monist npm: error: too few arguments
@@ -194,13 +194,36 @@ monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
 `);
     }).timeout(longTimeout);
+
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    it("symlinks when --local-deps=symlink is used", async () => {
+      await expectSuccess("test/tmp", ["npm", "--local-deps=symlink",
+                                       "--inhibit-subprocess-output",
+                                       "--serial", "run", "build"],
+        `\
+monist: packages/package-a: started npm run build
+monist: packages/package-a: finished npm run build
+monist: packages/package-d: started npm run build
+monist: packages/package-d: finished npm run build
+monist: packages/package-b: symlinking @abc/package-a
+monist: packages/package-b: symlinked @abc/package-a
+monist: packages/package-b: started npm run build
+monist: packages/package-b: finished npm run build
+monist: packages/package-c: symlinking @abc/package-a
+monist: packages/package-c: symlinked @abc/package-a
+monist: packages/package-c: symlinking @abc/package-b
+monist: packages/package-c: symlinked @abc/package-b
+monist: packages/package-c: started npm run build
+monist: packages/package-c: finished npm run build
+`);
+    }).timeout(longTimeout);
   });
 
   describe("run", () => {
     it("fails if no command is given", async () => {
       await expectFailure("./test/tmp", ["run"],
                           `\
-usage: monist run [-h] [--serial] [--local-deps {link,install}]
+usage: monist run [-h] [--serial] [--local-deps {link,install,symlink}]
                   [--inhibit-subprocess-output]
                   cmd [cmd ...]
 monist run: error: too few arguments
@@ -303,6 +326,29 @@ monist: packages/package-c: installing @abc/package-a
 monist: packages/package-c: installed @abc/package-a
 monist: packages/package-c: installing @abc/package-b
 monist: packages/package-c: installed @abc/package-b
+monist: packages/package-c: started npm run build
+monist: packages/package-c: finished npm run build
+`);
+    }).timeout(longTimeout);
+
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    it("symlinks when --local-deps=symlink is used", async () => {
+      await expectSuccess("test/tmp", ["run", "--local-deps=symlink",
+                                       "--inhibit-subprocess-output",
+                                       "--serial", "build"],
+        `\
+monist: packages/package-a: started npm run build
+monist: packages/package-a: finished npm run build
+monist: packages/package-d: started npm run build
+monist: packages/package-d: finished npm run build
+monist: packages/package-b: symlinking @abc/package-a
+monist: packages/package-b: symlinked @abc/package-a
+monist: packages/package-b: started npm run build
+monist: packages/package-b: finished npm run build
+monist: packages/package-c: symlinking @abc/package-a
+monist: packages/package-c: symlinked @abc/package-a
+monist: packages/package-c: symlinking @abc/package-b
+monist: packages/package-c: symlinked @abc/package-b
 monist: packages/package-c: started npm run build
 monist: packages/package-c: finished npm run build
 `);

@@ -15,6 +15,7 @@
     "posttest": "npm run lint",
     "build-and-test": "npm run build && npm run test",
     "self:publish": "cd build/dist && npm publish",
+    "self:pack": "cd build/dist && (packname=`npm pack --silent`; mv $packname ..; echo $packname)",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
     "postversion": "npm run build-and-test && npm run self:publish",
     "postpublish": "git push origin --follow-tags",

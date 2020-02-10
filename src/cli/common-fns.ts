@@ -69,6 +69,33 @@ function makeDepPath(packageTop: string, depTop: string,
   return path.relative(packageTop, path.join(depTop, buildDir));
 }
 
+async function symlinkDependencies(config: MonistConfig,
+                                   pkg: MonorepoMember,
+                                   inhibitSubprocessOutput: boolean):
+Promise<void> {
+  const { top } = pkg;
+  for (const dep of await pkg.getLocalDeps()) {
+    const depName = await dep.getName();
+    const { localName: depLocalName, scope } = parseName(depName);
+    if (await accessible(path.join(top, "node_modules", `@${scope}`,
+                                   depLocalName))) {
+      log(`${top}: ${depName} already symlinked`);
+    }
+    else {
+      log(`${top}: symlinking ${depName}`);
+      // eslint-disable-next-line no-await-in-loop
+      const scopeDir = path.join(top, "node_modules", `@${scope}`);
+      await fs.ensureDir(scopeDir);
+      await run("ln", ["-s", makeDepPath(scopeDir, dep.top, config.buildDir),
+                       depLocalName], {
+        cwd: scopeDir,
+        inhibitSubprocessOutput,
+      });
+      log(`${top}: symlinked ${depName}`);
+    }
+  }
+}
+
 async function linkDependencies(config: MonistConfig,
                                 pkg: MonorepoMember,
                                 inhibitSubprocessOutput: boolean):
@@ -140,7 +167,7 @@ export function combineCommonOptionsWithConfig<T extends Record<string, any>>(
 export interface ExecOptions {
   serial: boolean;
 
-  localDeps: "link" | "install" | null;
+  localDeps: "link" | "install" | "symlink" | null;
 
   inhibitSubprocessOutput: boolean;
 }
@@ -151,6 +178,9 @@ async function execForPkg(config: MonistConfig, pkg: MonorepoMember,
   switch (options.localDeps) {
     case null:
       // This means "do nothing".
+      break;
+    case "symlink":
+      await symlinkDependencies(config, pkg, options.inhibitSubprocessOutput);
       break;
     case "link":
       await linkDependencies(config, pkg, options.inhibitSubprocessOutput);
