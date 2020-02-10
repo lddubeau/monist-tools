@@ -20,13 +20,14 @@ const CI = process.env.CI === "true";
 //
 // What's with this long timeout?? Some of the tests run actual npm commands,
 // which even on a good day are pretty slow. When running in CI, it is even
-// sloooooower. We could use some kind of stubbing system to replace the actual
-// calls to npm with fake ones that resolve instantly. The problem though is
-// that this would not trap mismatches between our code and what npm
-// **actually** requires from us or returns back.
+// sloooooower. This is completely ridiculous... but here we are. We could use
+// some kind of stubbing system to replace the actual calls to npm with fake
+// ones that resolve instantly. The problem though is that this would not trap
+// mismatches between our code and what npm **actually** requires from us or
+// returns back.
 //
 // tslint:disable-next-line:mocha-no-side-effect-code
-const longTimeout = CI ? 20000 : 10000;
+const longTimeout = CI ? 30000 : 20000;
 
 async function expectFailure(monorepo: string, args: string[],
                              expectedStderr: string | RegExp,
