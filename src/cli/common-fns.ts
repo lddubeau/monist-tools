@@ -82,10 +82,6 @@ Promise<void> {
       log(`${top}: ${depName} already linked`);
     }
     else {
-      const dest = path.join(dep.top, "build", "dist");
-      if (!await accessible(dest)) {
-        await fs.ensureDir(dest);
-      }
       log(`${top}: linking ${depName}`);
       // eslint-disable-next-line no-await-in-loop
       await run("npm", ["link", makeDepPath(top, dep.top, config.buildDir)], {
