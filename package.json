@@ -50,7 +50,7 @@
     "@types/diff": "^4.0.2",
     "@types/fs-extra": "^8.1.0",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^12.12.32",
+    "@types/node": "^12.12.34",
     "@types/require-dir": "^1.0.0",
     "@types/semver": "^7.1.0",
     "@types/sinon": "^7.5.2",
