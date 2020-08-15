@@ -77,7 +77,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "ajv": "^6.12.3",
+    "ajv": "^6.12.4",
     "argparse": "^1.0.10",
     "fs-extra": "^9.0.0",
     "require-dir": "^1.2.0",
