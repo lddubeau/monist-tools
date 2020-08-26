@@ -1,8 +1,10 @@
+"use strict";
+
 module.exports = {
   extends: [
-    "lddubeau-base"
+    "lddubeau-base",
   ],
   env: {
     node: true,
-  }
+  },
 };
