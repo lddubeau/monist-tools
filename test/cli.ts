@@ -73,7 +73,8 @@ describe("cli", () => {
       await expectFailure("./test/tmp", ["update-versions"],
                           `\
 usage: monist-tools update-versions [-h] version
-monist-tools update-versions: error: too few arguments
+monist-tools update-versions: error: the following arguments are required: \
+version
 `);
     });
 
@@ -246,7 +247,7 @@ monist-tools: Error: verification failed
       await expectFailure("./test/tmp", ["set-script"],
                           `\
 usage: monist-tools set-script [-h] [--overwrite] name content
-monist-tools set-script: error: too few arguments
+monist-tools set-script: error: the following arguments are required: name, content
 `);
     });
 
@@ -254,7 +255,7 @@ monist-tools set-script: error: too few arguments
       await expectFailure("./test/tmp", ["set-script", "foo"],
                           `\
 usage: monist-tools set-script [-h] [--overwrite] name content
-monist-tools set-script: error: too few arguments
+monist-tools set-script: error: the following arguments are required: content
 `);
     });
 
@@ -440,7 +441,7 @@ test/tmp/packages/package-d/package.json
       await expectFailure("./test/tmp", ["del-script"],
                           `\
 usage: monist-tools del-script [-h] name
-monist-tools del-script: error: too few arguments
+monist-tools del-script: error: the following arguments are required: name
 `);
     });
 

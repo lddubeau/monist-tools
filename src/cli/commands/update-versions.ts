@@ -22,7 +22,7 @@ async function updateVersionsCommand(args: Record<string, any>): Promise<void> {
 }
 
 export function addParser(subparsers: SubParser): void {
-  const updateVersions = subparsers.addParser("update-versions", {
+  const updateVersions = subparsers.add_parser("update-versions", {
     description: "Update the versions of all local packages. This updates the \
 package's version number and the version number of the local dependencies. \
 Prior to updating the versions, this command does a sanity check on the \
@@ -30,7 +30,7 @@ version numbers already in the package.json files and fails if it finds any \
 error.",
   });
 
-  updateVersions.addArgument(["version"]);
+  updateVersions.add_argument("version");
 
-  updateVersions.setDefaults({ func: updateVersionsCommand });
+  updateVersions.set_defaults({ func: updateVersionsCommand });
 }

@@ -19,9 +19,9 @@ async function verifyDeps(): Promise<void> {
 }
 
 export function addParser(subparsers: SubParser): void {
-  const parser = subparsers.addParser("verify-deps", {
+  const parser = subparsers.add_parser("verify-deps", {
     description: "Verify the dependencies in all package.json files.",
   });
 
-  parser.setDefaults({ func: verifyDeps });
+  parser.set_defaults({ func: verifyDeps });
 }

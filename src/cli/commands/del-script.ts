@@ -13,13 +13,13 @@ async function delScript(args: Record<string, any>): Promise<void> {
 }
 
 export function addParser(subparsers: SubParser): void {
-  const parser = subparsers.addParser("del-script", {
+  const parser = subparsers.add_parser("del-script", {
     description: "Delete a script in all local packages.",
   });
 
-  parser.addArgument(["name"], {
+  parser.add_argument("name", {
     help: "The name of the script.",
   });
 
-  parser.setDefaults({ func: delScript });
+  parser.set_defaults({ func: delScript });
 }
