@@ -4,14 +4,12 @@
 import { SubParser } from "argparse";
 
 import { Monorepo } from "../../monorepo";
-import { MonistConfig } from "../config";
 
 // tslint:disable-next-line:no-any
-async function delScript(config: MonistConfig,
-                         args: Record<string, any>): Promise<void> {
+async function delScript(args: Record<string, any>): Promise<void> {
   const { name } = args;
 
-  return new Monorepo(".", config).delScript(name);
+  return new Monorepo(".").delScript(name);
 }
 
 export function addParser(subparsers: SubParser): void {

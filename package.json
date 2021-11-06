@@ -1,17 +1,16 @@
 {
-  "name": "monist",
-  "version": "1.7.0",
+  "name": "monist-tools",
+  "version": "1.0.0",
   "private": true,
   "description": "A lightweight tool for managing monorepos.",
   "main": "index.js",
   "scripts": {
-    "generate-ts": "mkdir -p build/generated/cli && json2ts -i src/cli/config-schema.json -o build/generated/cli/config-schema-object.d.ts",
     "tsc": "tsc -p src/tsconfig.json --outDir build/dist/lib",
     "clean-package": "sed -e'/private/d' package.json > build/dist/package.json",
-    "bin": "mkdir -p build/dist/bin/ && sed -e's;build/dist/;;' bin/monist > build/dist/bin/monist && chmod +x build/dist/bin/monist",
-    "build": "npm run generate-ts && npm run tsc && npm run clean-package && npm run bin && cp README.md build/dist/",
+    "bin": "mkdir -p build/dist/bin/ && sed -e's;build/dist/;;' bin/monist-tools > build/dist/bin/monist-tools && chmod +x build/dist/bin/monist-tools",
+    "build": "npm run tsc && npm run clean-package && npm run bin && cp README.md build/dist/",
     "test": "mocha",
-    "lint": "tslint --format verbose -p src && tslint --format verbose -p test && eslint --ignore-path .gitignore '**/*.js'",
+    "lint": "tslint --format verbose -p src -p test && eslint --ignore-path .gitignore '**/*.js'",
     "posttest": "npm run lint",
     "build-and-test": "npm run build && npm run test",
     "self:publish": "cd build/dist && npm publish",
@@ -22,13 +21,13 @@
     "clean": "rm -rf build"
   },
   "bin": {
-    "monist": "./bin/monist"
+    "monist-tools": "./bin/monist-tools"
   },
   "author": "Louis-Dominique Dubeau <ldd@lddubeau.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lddubeau/monist.git"
+    "url": "git+https://github.com/lddubeau/monist-tools.git"
   },
   "keywords": [
     "monorepo",
@@ -36,12 +35,12 @@
     "build"
   ],
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "bugs": {
-    "url": "https://github.com/lddubeau/monist/issues"
+    "url": "https://github.com/lddubeau/monist-tools/issues"
   },
-  "homepage": "https://github.com/lddubeau/monist#readme",
+  "homepage": "https://github.com/lddubeau/monist-tools#readme",
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
     "@commitlint/config-angular": "^9.1.2",
@@ -49,6 +48,7 @@
     "@types/chai": "^4.2.12",
     "@types/diff": "^4.0.2",
     "@types/fs-extra": "^9.0.1",
+    "@types/glob": "^7.2.0",
     "@types/mocha": "^8.0.3",
     "@types/node": "^12.12.54",
     "@types/require-dir": "^1.0.1",
@@ -80,6 +80,7 @@
     "ajv": "^6.12.4",
     "argparse": "^1.0.10",
     "fs-extra": "^9.0.1",
+    "glob": "^7.2.0",
     "require-dir": "^1.2.0",
     "semver": "^7.3.2"
   },

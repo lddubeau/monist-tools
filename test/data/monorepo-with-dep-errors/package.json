@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "workspaces": [
+    "packages/package-a",
+    "packages/package-d",
+    "packages/package-b",
+    "packages/package-c"
+  ],
   "devDependencies": {
     "external": "^1.0.0",
     "external-2": "^2.0.0",

@@ -5,12 +5,10 @@ import { SubParser } from "argparse";
 
 import { error } from "../../log";
 import { Monorepo } from "../../monorepo";
-import { MonistConfig } from "../config";
 
 // tslint:disable-next-line:no-any
-async function updateVersionsCommand(config: MonistConfig,
-                                     args: Record<string, any>): Promise<void> {
-  const monorepo = new Monorepo(".", config);
+async function updateVersionsCommand(args: Record<string, any>): Promise<void> {
+  const monorepo = new Monorepo(".");
 
   const errors = await monorepo.verifyDeps();
   if (errors.length !== 0) {

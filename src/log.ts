@@ -7,7 +7,7 @@
  */
 export function log(message: string): void {
   // tslint:disable-next-line:no-console
-  console.log(`monist: ${message}`);
+  console.log(`monist-tools: ${message}`);
 }
 
 /**
@@ -15,5 +15,5 @@ export function log(message: string): void {
  */
 export function error(message: string): void {
   // tslint:disable-next-line:no-console
-  console.error(`monist: ${message}`);
+  console.error(`monist-tools: ${message}`);
 }

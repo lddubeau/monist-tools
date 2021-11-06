@@ -1,11 +1,13 @@
-import * as fs from "fs-extra";
 import * as path from "path";
 import * as semver from "semver";
+import { promisify } from "util";
 
-import { MonistConfig } from "./cli/config";
+import _glob from "glob";
 import { Package, SetScriptOptions } from "./package";
 import { DepTree, findLeavesInTrees, removeNodesFromTrees } from "./tree";
 import { DEP_NAMES, NON_DEV_DEP_NAMES, ReadonlyJsonObject } from "./util";
+
+const glob = promisify(_glob);
 
 const STRICT_DEP_NAMES = ["dependencies", "optionalDependencies",
                           "bundledDependencies"];
@@ -164,7 +166,7 @@ export class Monorepo extends Package {
   /**
    * @param top The top level directory of the monorepo.
    */
-  constructor(top: string, private readonly config: MonistConfig) {
+  constructor(top: string) {
     super(top);
   }
 
@@ -209,30 +211,34 @@ export class Monorepo extends Package {
    */
   async getMembersByName(): Promise<Map<string, MonorepoMember>> {
     if (this._membersByName === undefined) {
-      const { config } = this;
       this._membersByName =
         (async () => {
           const map = new Map<string, MonorepoMember>();
 
+          const workspaces = (await this.getJson()).workspaces as string[];
+          if (workspaces == null) {
+            throw new Error("workspaces must be defined");
+          }
+
+          const { top } = this;
           await Promise.all(
-            (await fs.readdir(path.join(this.top, "packages")))
-            // Remove all the packages that are ignored.
-              .filter(basename => !config.packageOptions?.[basename]?.ignore)
-              .map(async basename => {
-                const member = new MonorepoMember(path.join(this.top,
-                                                            "packages",
-                                                            basename),
-                                                  this);
-                const name = await member.getName();
+            workspaces.map(x => glob(x, {
+              cwd: top,
+            }))
+              .map(async paths => {
+                for (const p of await paths) {
+                  const member = new MonorepoMember(path.join(top, p), this);
+                  const name = await member.getName();
 
-                const existing = map.get(name);
-                if (existing !== undefined) {
-                  const [first, second] = [member.top, existing.top].sort();
-                  throw new Error(`duplicate package name ${name} at ${first} \
+                  const existing = map.get(name);
+                  if (existing !== undefined) {
+                    const [first, second] = [member.top, existing.top].sort();
+                    throw new Error(`duplicate package name ${name} at ${first} \
 and ${second}`);
-                }
+                  }
 
-                map.set(name, member);
+                  map.set(name, member);
+                }
               }));
 
           return map;

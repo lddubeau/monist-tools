@@ -7,6 +7,12 @@
     "external": "^1.0.0",
     "@abc/external": "^1.0.0"
   },
+  "workspaces": [
+    "packages/package-a",
+    "packages/package-d",
+    "packages/package-b",
+    "packages/package-c"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

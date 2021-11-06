@@ -6,7 +6,6 @@ import { ArgumentParser, Const } from "argparse";
 import requireDir = require("require-dir");
 
 import { error } from "../log";
-import { loadConfig } from "./config";
 
 const commands = requireDir("./commands");
 
@@ -40,9 +39,7 @@ async function main(): Promise<void> {
 
   const args = parser.parseArgs(process.argv.slice(2));
 
-  const config = loadConfig();
-
-  return args.func(config, args);
+  return args.func(args);
 }
 
 // tslint:disable-next-line:no-floating-promises

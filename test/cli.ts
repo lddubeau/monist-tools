@@ -12,27 +12,12 @@ use(chai);
 const execFile = promisify(_execFile);
 
 // tslint:disable-next-line:mocha-no-side-effect-code
-const monist = path.resolve("bin/monist");
-
-// tslint:disable-next-line:mocha-no-side-effect-code
-const CI = process.env.CI === "true";
-
-//
-// What's with this long timeout?? Some of the tests run actual npm commands,
-// which even on a good day are pretty slow. When running in CI, it is even
-// sloooooower. This is completely ridiculous... but here we are. We could use
-// some kind of stubbing system to replace the actual calls to npm with fake
-// ones that resolve instantly. The problem though is that this would not trap
-// mismatches between our code and what npm **actually** requires from us or
-// returns back.
-//
-// tslint:disable-next-line:mocha-no-side-effect-code
-const longTimeout = CI ? 30000 : 20000;
+const monistTool = path.resolve("bin/monist-tools");
 
 async function expectFailure(monorepo: string, args: string[],
                              expectedStderr: string | RegExp,
                              expectedStdout: string = ""): Promise<void> {
-  const err = await expectRejection(execFile(monist, args, {
+  const err = await expectRejection(execFile(monistTool, args, {
     cwd: monorepo,
   }), Error);
   // tslint:disable-next-line:no-any
@@ -48,7 +33,7 @@ async function expectFailure(monorepo: string, args: string[],
 
 async function expectSuccess(monorepo: string, args: string[],
                              expectedStdout: string | string[]): Promise<void> {
-  const { stderr, stdout } = await execFile(monist, args, {
+  const { stderr, stdout } = await execFile(monistTool, args, {
     cwd: monorepo,
   });
   expect(stderr).to.equal("");
@@ -83,291 +68,19 @@ describe("cli", () => {
     await fs.remove("test/tmp");
   });
 
-  describe("npm", () => {
-    it("fails if no command is given", async () => {
-      await expectFailure("./test/tmp", ["npm"],
-                          `\
-usage: monist npm [-h] [--serial] [--local-deps {link,install,symlink}]
-                  [--inhibit-subprocess-output]
-                  cmd [cmd ...]
-monist npm: error: too few arguments
-`);
-    });
-
-    it("fails if the command fails", async () => {
-      await expectFailure("./test/tmp", ["npm", "fnord",
-                                         "--inhibit-subprocess-output"],
-                          /^monist: Error: Command failed: npm fnord/,
-                         `\
-monist: packages/package-a: started npm fnord
-monist: packages/package-d: started npm fnord
-`);
-    });
-
-    it("runs a command in all packages, following dependencies", async () => {
-      // Starts for parallel packages are a determinate order because we access
-      // packages in alphabetical order.  However, finishes are not necessarily
-      // in a determinate order. Here package-a and package-d are parallel, and
-      // can finish in any order relative to one-another.
-      await expectSuccess("./test/tmp", ["npm", "root",
-                                         "--inhibit-subprocess-output"], [
-        `\
-monist: packages/package-a: started npm root
-monist: packages/package-d: started npm root
-monist: packages/package-a: finished npm root
-monist: packages/package-d: finished npm root
-monist: packages/package-b: started npm root
-monist: packages/package-b: finished npm root
-monist: packages/package-c: started npm root
-monist: packages/package-c: finished npm root
-`,
-        `\
-monist: packages/package-a: started npm root
-monist: packages/package-d: started npm root
-monist: packages/package-d: finished npm root
-monist: packages/package-a: finished npm root
-monist: packages/package-b: started npm root
-monist: packages/package-b: finished npm root
-monist: packages/package-c: started npm root
-monist: packages/package-c: finished npm root
-`,
-      ]);
-    });
-
-    it("runs the command serially, when --serial is used", async () => {
-      await expectSuccess("./test/tmp", ["npm", "--serial",
-                                         "--inhibit-subprocess-output", "root"],
-        `\
-monist: packages/package-a: started npm root
-monist: packages/package-a: finished npm root
-monist: packages/package-d: started npm root
-monist: packages/package-d: finished npm root
-monist: packages/package-b: started npm root
-monist: packages/package-b: finished npm root
-monist: packages/package-c: started npm root
-monist: packages/package-c: finished npm root
-`);
-    });
-
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("links when --local-deps=link is used", async () => {
-      await expectSuccess("test/tmp", ["npm", "--local-deps=link", "--serial",
-                                       "--inhibit-subprocess-output",
-                                       "run", "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
-monist: packages/package-b: linking @abc/package-a
-monist: packages/package-b: linked @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: linking @abc/package-a
-monist: packages/package-c: linked @abc/package-a
-monist: packages/package-c: linking @abc/package-b
-monist: packages/package-c: linked @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("installs when --local-deps=install is used", async () => {
-      await expectSuccess("test/tmp", ["npm", "--local-deps=install",
-                                       "--inhibit-subprocess-output",
-                                       "--serial", "run", "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
-monist: packages/package-b: installing @abc/package-a
-monist: packages/package-b: installed @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: installing @abc/package-a
-monist: packages/package-c: installed @abc/package-a
-monist: packages/package-c: installing @abc/package-b
-monist: packages/package-c: installed @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("symlinks when --local-deps=symlink is used", async () => {
-      await expectSuccess("test/tmp", ["npm", "--local-deps=symlink",
-                                       "--inhibit-subprocess-output",
-                                       "--serial", "run", "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
-monist: packages/package-b: symlinking @abc/package-a
-monist: packages/package-b: symlinked @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: symlinking @abc/package-a
-monist: packages/package-c: symlinked @abc/package-a
-monist: packages/package-c: symlinking @abc/package-b
-monist: packages/package-c: symlinked @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-  });
-
-  describe("run", () => {
-    it("fails if no command is given", async () => {
-      await expectFailure("./test/tmp", ["run"],
-                          `\
-usage: monist run [-h] [--serial] [--local-deps {link,install,symlink}]
-                  [--inhibit-subprocess-output]
-                  cmd [cmd ...]
-monist run: error: too few arguments
-`);
-    });
-
-    it("fails if the command fails", async () => {
-      await expectFailure("./test/tmp", ["run", "test",
-                                         "--inhibit-subprocess-output"],
-                          /^monist: Error: Command failed: npm run test/,
-                         `\
-monist: packages/package-a: started npm run test
-monist: packages/package-d: started npm run test
-`);
-    });
-
-    it("runs a script in all packages, following dependencies", async () => {
-      // Starts for parallel packages are a determinate order because we access
-      // packages in alphabetical order.  However, finishes are not necessarily
-      // in a determinate order. Here package-a and package-d are parallel, and
-      // can finish in any order relative to one-another.
-      await expectSuccess("./test/tmp", ["run", "ping",
-                                         "--inhibit-subprocess-output"], [
-        `\
-monist: packages/package-a: started npm run ping
-monist: packages/package-d: started npm run ping
-monist: packages/package-a: finished npm run ping
-monist: packages/package-d: finished npm run ping
-monist: packages/package-b: started npm run ping
-monist: packages/package-b: finished npm run ping
-monist: packages/package-c: started npm run ping
-monist: packages/package-c: finished npm run ping
-`,
-        `\
-monist: packages/package-a: started npm run ping
-monist: packages/package-d: started npm run ping
-monist: packages/package-d: finished npm run ping
-monist: packages/package-a: finished npm run ping
-monist: packages/package-b: started npm run ping
-monist: packages/package-b: finished npm run ping
-monist: packages/package-c: started npm run ping
-monist: packages/package-c: finished npm run ping
-`,
-      ]);
-    });
-
-    it("runs the command serially, when --serial is used", async () => {
-      await expectSuccess("./test/tmp", ["run", "--serial",
-                                         "--inhibit-subprocess-output", "ping"],
-        `\
-monist: packages/package-a: started npm run ping
-monist: packages/package-a: finished npm run ping
-monist: packages/package-d: started npm run ping
-monist: packages/package-d: finished npm run ping
-monist: packages/package-b: started npm run ping
-monist: packages/package-b: finished npm run ping
-monist: packages/package-c: started npm run ping
-monist: packages/package-c: finished npm run ping
-`);
-    });
-
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("links when --local-deps=link is used", async () => {
-      await expectSuccess("test/tmp", ["run", "--local-deps=link", "--serial",
-                                       "--inhibit-subprocess-output",
-                                       "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
-monist: packages/package-b: linking @abc/package-a
-monist: packages/package-b: linked @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: linking @abc/package-a
-monist: packages/package-c: linked @abc/package-a
-monist: packages/package-c: linking @abc/package-b
-monist: packages/package-c: linked @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("installs when --local-deps=install is used", async () => {
-      await expectSuccess("test/tmp", ["run", "--local-deps=install",
-                                       "--inhibit-subprocess-output",
-                                       "--serial", "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
-monist: packages/package-b: installing @abc/package-a
-monist: packages/package-b: installed @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: installing @abc/package-a
-monist: packages/package-c: installed @abc/package-a
-monist: packages/package-c: installing @abc/package-b
-monist: packages/package-c: installed @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("symlinks when --local-deps=symlink is used", async () => {
-      await expectSuccess("test/tmp", ["run", "--local-deps=symlink",
-                                       "--inhibit-subprocess-output",
-                                       "--serial", "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-d: started npm run build
-monist: packages/package-d: finished npm run build
-monist: packages/package-b: symlinking @abc/package-a
-monist: packages/package-b: symlinked @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: symlinking @abc/package-a
-monist: packages/package-c: symlinked @abc/package-a
-monist: packages/package-c: symlinking @abc/package-b
-monist: packages/package-c: symlinked @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-  });
-
   describe("update-versions", () => {
     it("fails if no version is given", async () => {
       await expectFailure("./test/tmp", ["update-versions"],
                           `\
-usage: monist update-versions [-h] version
-monist update-versions: error: too few arguments
+usage: monist-tools update-versions [-h] version
+monist-tools update-versions: error: too few arguments
 `);
     });
 
     it("fails if a bad version number is given", async () => {
       await expectFailure("./test/tmp", ["update-versions", "foo"],
                           `\
-monist: Error: foo is not a valid semver version
+monist-tools: Error: foo is not a valid semver version
 `);
 
     });
@@ -387,7 +100,7 @@ diff -uraN test/data/monorepo-good/package.json test/tmp/package.json
    "description": "",
    "main": "index.js",
    "devDependencies": {
-@@ -12,4 +12,4 @@
+@@ -18,4 +18,4 @@
    },
    "author": "",
    "license": "ISC"
@@ -510,18 +223,18 @@ test/tmp/packages/package-d/package.json
       await fs.copy("test/data/monorepo-with-dep-errors", "test/tmp");
       await expectFailure("./test/tmp", ["update-versions", "2.0.0"],
                           `\
-monist: dependencies are not allowed in the monorepo package.json
-monist: optionalDependencies are not allowed in the monorepo package.json
-monist: peerDependencies are not allowed in the monorepo package.json
-monist: bundledDependencies are not allowed in the monorepo package.json
-monist: @abc/package-c has devDependencies referring to external packages; \
+monist-tools: dependencies are not allowed in the monorepo package.json
+monist-tools: optionalDependencies are not allowed in the monorepo package.json
+monist-tools: peerDependencies are not allowed in the monorepo package.json
+monist-tools: bundledDependencies are not allowed in the monorepo package.json
+monist-tools: @abc/package-c has devDependencies referring to external packages; \
 such dependencies should instead be in the top package.json
-monist: @abc/package-c: unaccounted is missing from monorepo package.json
-monist: @abc/package-c: external version is inconsistent from the one in the \
+monist-tools: @abc/package-c: unaccounted is missing from monorepo package.json
+monist-tools: @abc/package-c: external version is inconsistent from the one in the \
 monorepo package.json
-monist: @abc/package-c: external-2 version is inconsistent from the one in the \
+monist-tools: @abc/package-c: external-2 version is inconsistent from the one in the \
 monorepo package.json
-monist: Error: verification failed
+monist-tools: Error: verification failed
 `);
       await execFile("diff", ["-uraN", "test/data/monorepo-with-dep-errors",
                               "test/tmp"]);
@@ -532,23 +245,23 @@ monist: Error: verification failed
     it("fails if no argument is given", async () => {
       await expectFailure("./test/tmp", ["set-script"],
                           `\
-usage: monist set-script [-h] [--overwrite] name content
-monist set-script: error: too few arguments
+usage: monist-tools set-script [-h] [--overwrite] name content
+monist-tools set-script: error: too few arguments
 `);
     });
 
     it("fails if no content is given", async () => {
       await expectFailure("./test/tmp", ["set-script", "foo"],
                           `\
-usage: monist set-script [-h] [--overwrite] name content
-monist set-script: error: too few arguments
+usage: monist-tools set-script [-h] [--overwrite] name content
+monist-tools set-script: error: too few arguments
 `);
     });
 
     it("fails if the script exists, and not overwriting", async () => {
       await expectFailure("./test/tmp", ["set-script", "test", "echo new"],
                           `\
-monist: Error: @abc/monorepo-good: trying to overwrite script test in \
+monist-tools: Error: @abc/monorepo-good: trying to overwrite script test in \
 @abc/package-a, @abc/package-b, @abc/package-c, @abc/package-d
 `);
 
@@ -726,8 +439,8 @@ test/tmp/packages/package-d/package.json
     it("fails if no argument is given", async () => {
       await expectFailure("./test/tmp", ["del-script"],
                           `\
-usage: monist del-script [-h] name
-monist del-script: error: too few arguments
+usage: monist-tools del-script [-h] name
+monist-tools del-script: error: too few arguments
 `);
     });
 
@@ -826,85 +539,21 @@ test/tmp/packages/package-d/package.json
       await fs.copy("test/data/monorepo-with-dep-errors", "test/tmp");
       await expectFailure("./test/tmp", ["verify-deps"],
                           `\
-monist: dependencies are not allowed in the monorepo package.json
-monist: optionalDependencies are not allowed in the monorepo package.json
-monist: peerDependencies are not allowed in the monorepo package.json
-monist: bundledDependencies are not allowed in the monorepo package.json
-monist: @abc/package-c has devDependencies referring to external packages; \
+monist-tools: dependencies are not allowed in the monorepo package.json
+monist-tools: optionalDependencies are not allowed in the monorepo package.json
+monist-tools: peerDependencies are not allowed in the monorepo package.json
+monist-tools: bundledDependencies are not allowed in the monorepo package.json
+monist-tools: @abc/package-c has devDependencies referring to external packages; \
 such dependencies should instead be in the top package.json
-monist: @abc/package-c: unaccounted is missing from monorepo package.json
-monist: @abc/package-c: external version is inconsistent from the one in the \
+monist-tools: @abc/package-c: unaccounted is missing from monorepo package.json
+monist-tools: @abc/package-c: external version is inconsistent from the one in the \
 monorepo package.json
-monist: @abc/package-c: external-2 version is inconsistent from the one in the \
+monist-tools: @abc/package-c: external-2 version is inconsistent from the one in the \
 monorepo package.json
-monist: Error: verification failed
+monist-tools: Error: verification failed
 `);
       await execFile("diff", ["-uraN", "test/data/monorepo-with-dep-errors",
                               "test/tmp"]);
     });
-  });
-});
-
-describe("cli: configuration", () => {
-  describe("takes into account buildDir", () => {
-    before(async () => {
-      await fs.copy("test/data/monorepo-good-with-config", "test/tmp");
-    });
-
-    after(async () => {
-      await fs.remove("test/tmp");
-    });
-
-    // We need the no-side-effect-code because of the timeout.
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("installs when --local-deps=install is used", async () => {
-      await expectSuccess("test/tmp", ["run", "--local-deps=install",
-                                       "--inhibit-subprocess-output",
-                                       "--serial", "build"],
-        `\
-monist: packages/package-a: started npm run build
-monist: packages/package-a: finished npm run build
-monist: packages/package-b: installing @abc/package-a
-monist: packages/package-b: installed @abc/package-a
-monist: packages/package-b: started npm run build
-monist: packages/package-b: finished npm run build
-monist: packages/package-c: installing @abc/package-a
-monist: packages/package-c: installed @abc/package-a
-monist: packages/package-c: installing @abc/package-b
-monist: packages/package-c: installed @abc/package-b
-monist: packages/package-c: started npm run build
-monist: packages/package-c: finished npm run build
-`);
-    }).timeout(longTimeout);
-  });
-
-  describe("takes into account cliOptions", () => {
-    before(async () => {
-      await fs.copy("test/data/monorepo-good-with-config", "test/tmp");
-    });
-
-    after(async () => {
-      await fs.remove("test/tmp");
-    });
-
-    // We need the no-side-effect-code because of the timeout.
-    // tslint:disable-next-line:mocha-no-side-effect-code
-    it("the command takes its options from the config file", async () => {
-      await expectSuccess("test/tmp", ["run", "ping"],
-        `\
-monist: packages/package-a: started npm run ping
-monist: packages/package-a: finished npm run ping
-monist: packages/package-b: installing @abc/package-a
-monist: packages/package-b: installed @abc/package-a
-monist: packages/package-b: started npm run ping
-monist: packages/package-b: finished npm run ping
-monist: packages/package-c: installing @abc/package-a
-monist: packages/package-c: installed @abc/package-a
-monist: packages/package-c: installing @abc/package-b
-monist: packages/package-c: installed @abc/package-b
-monist: packages/package-c: started npm run ping
-monist: packages/package-c: finished npm run ping
-`);
-    }).timeout(longTimeout);
   });
 });
