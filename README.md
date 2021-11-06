@@ -1,7 +1,8 @@
 Monist-tools is a lightweight tool for managing monorepos.
 
 Monist-tools is derived from monist. Monist itself is being retired in favor of
-npm workspaces.
+npm workspaces. Since this code base was forked from monist it shares history
+with it and the first version of monist-tools is not 1.0.0 but version 2.0.0.
 
 Motivation
 ==========
