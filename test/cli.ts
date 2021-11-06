@@ -52,7 +52,7 @@ async function expectDifference(frm: string, to: string,
     await execFile("diff", ["-uraN", frm, to]);
     expect.fail("There was no difference");
   }
-  catch (e) {
+  catch (e: any) {
     const { stdout } = e;
     expect(stdout.replace(/^(---|\+\+\+) (.*?)\t.*$/gm, "$1 $2"))
       .to.equal(expectedDiff);
