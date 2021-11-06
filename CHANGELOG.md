@@ -1,3 +1,12 @@
+# [2.0.0](https://github.com/lddubeau/monist-tools/compare/v1.7.0...v2.0.0) (2021-11-06)
+
+
+### Bug Fixes
+
+* convert monist to monist-tools ([d2faf5d](https://github.com/lddubeau/monist-tools/commit/d2faf5d94bef8d01a9f42c626e96411adca9f86e))
+
+
+
 <a name="1.7.0"></a>
 # [1.7.0](https://github.com/lddubeau/monist/compare/v1.6.0...v1.7.0) (2020-02-10)
 
