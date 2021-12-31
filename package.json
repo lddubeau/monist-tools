@@ -54,7 +54,7 @@
     "@types/require-dir": "^1.0.2",
     "@types/semver": "^7.3.9",
     "@types/sinon": "^10.0.6",
-    "@types/sinon-chai": "^3.2.7",
+    "@types/sinon-chai": "^3.2.8",
     "chai": "^4.3.4",
     "conventional-changelog-cli": "^2.2.2",
     "diff": "^5.0.0",
