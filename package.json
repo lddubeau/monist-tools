@@ -67,7 +67,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "expect-rejection": "^2.0.0",
     "husky": "^7.0.4",
-    "json-schema-to-typescript": "^10.1.5",
+    "json-schema-to-typescript": "^12.0.0",
     "mocha": "^9.2.2",
     "sinon": "^13.0.2",
     "sinon-chai": "^3.7.0",
