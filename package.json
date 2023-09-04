@@ -52,7 +52,7 @@
     "@types/mocha": "^9.1.1",
     "@types/node": "^16.18.34",
     "@types/require-dir": "^1.0.2",
-    "@types/semver": "^7.5.0",
+    "@types/semver": "^7.5.1",
     "@types/sinon": "^10.0.16",
     "@types/sinon-chai": "^3.2.9",
     "chai": "^4.3.8",
@@ -82,6 +82,6 @@
     "fs-extra": "^10.1.0",
     "glob": "^7.2.3",
     "require-dir": "^1.2.0",
-    "semver": "^7.5.1"
+    "semver": "^7.5.4"
   }
 }
