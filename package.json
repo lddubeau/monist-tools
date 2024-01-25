@@ -51,7 +51,7 @@
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^16.18.75",
-    "@types/require-dir": "^1.0.3",
+    "@types/require-dir": "^1.0.4",
     "@types/semver": "^7.5.4",
     "@types/sinon": "^10.0.20",
     "@types/sinon-chai": "^3.2.11",
