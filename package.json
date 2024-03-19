@@ -42,8 +42,8 @@
   },
   "homepage": "https://github.com/lddubeau/monist-tools#readme",
   "devDependencies": {
-    "@commitlint/cli": "^16.3.0",
-    "@commitlint/config-angular": "^16.3.0",
+    "@commitlint/cli": "^19.2.1",
+    "@commitlint/config-angular": "^19.1.0",
     "@types/argparse": "^2.0.14",
     "@types/chai": "^4.3.11",
     "@types/diff": "^5.0.9",
