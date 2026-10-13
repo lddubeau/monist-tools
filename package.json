@@ -56,7 +56,7 @@
     "@types/sinon": "^10.0.20",
     "@types/sinon-chai": "^3.2.12",
     "chai": "^4.5.0",
-    "conventional-changelog-cli": "^2.2.2",
+    "conventional-changelog-cli": "^5.0.0",
     "diff": "^5.2.0",
     "eslint": "^8.57.1",
     "eslint-config-lddubeau-base": "^6.1.0",
